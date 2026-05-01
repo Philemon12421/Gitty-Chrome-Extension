@@ -1,5 +1,5 @@
 // ============================================
-// Gitty — Main Application Logic
+// Gitty v2 — Main Application Logic
 // ============================================
 
 const STATE = {
@@ -7,29 +7,24 @@ const STATE = {
   lastReadme: '',
   lastExplanation: '',
   settings: {
-    syntaxTheme: 'dracula',
+    syntaxTheme: 'tokyo-night',
     defaultAnimation: 'typewriter',
     autoCopy: false
   },
-  history: {
-    readme: [],
-    code: []
-  }
+  history: { readme: [], code: [] }
 };
 
 // ============================================
-// DOM REFS
+// DOM
 // ============================================
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 const DOM = {
-  tabs: $$('.nav-btn'),
-  tabContents: {
-    readme: $('#tab-readme'),
-    explainer: $('#tab-explainer'),
-    history: $('#tab-history')
-  },
+  // Nav
+  navItems: $$('.nav-item'),
+  tabPanes: { readme: $('#tab-readme'), explainer: $('#tab-explainer'), history: $('#tab-history') },
+
   // README
   projectName: $('#project-name'),
   projectTagline: $('#project-tagline'),
@@ -39,148 +34,138 @@ const DOM = {
   projectBadgeStyle: $('#project-badge-style'),
   projectFeatures: $('#project-features'),
   projectInstall: $('#project-install'),
+  projectGithub: $('#project-github'),
   animRadios: $$('input[name="anim-style"]'),
   btnGenerate: $('#btn-generate-readme'),
   btnCopy: $('#btn-copy-readme'),
   btnSave: $('#btn-save-readme'),
   previewContainer: $('#readme-preview-container'),
   preview: $('#readme-preview'),
-  togglePreviewAnim: $('#btn-toggle-preview-anim'),
-  // EXPLAINER
+  btnToggleAnim: $('#btn-toggle-preview-anim'),
+
+  // Explainer
   codeLanguage: $('#code-language'),
   explainDepth: $('#explain-depth'),
   syntaxTheme: $('#syntax-theme'),
   codeInput: $('#code-input'),
+  lineNumbers: $('#line-numbers'),
   btnExplain: $('#btn-explain-code'),
   btnClearCode: $('#btn-clear-code'),
   explanationOutput: $('#explanation-output'),
   explanationBody: $('#explanation-body'),
   btnCopyExplanation: $('#btn-copy-explanation'),
-  // HISTORY
+
+  // History
   histReadme: $('#history-readme'),
   histCode: $('#history-code'),
   histEmpty: $('#history-empty'),
-  histTabBtns: $$('.hist-tab-btn'),
+  histSegBtns: $$('.hist-seg-btn'),
   btnClearHistory: $('#btn-clear-history'),
-  // SETTINGS
-  settingsPanel: $('#settings-panel'),
+
+  // Settings
+  settingsOverlay: $('#settings-overlay'),
   btnSettings: $('#btn-settings'),
   btnCloseSettings: $('#btn-close-settings'),
   settingsSyntaxTheme: $('#settings-syntax-theme'),
   settingsAnimation: $('#settings-animation'),
   settingsAutoCopy: $('#settings-auto-copy'),
-  btnSaveSettings: $('#btn-save-settings')
+  btnSaveSettings: $('#btn-save-settings'),
+
+  // Toast
+  toast: $('#toast')
 };
 
 // ============================================
-// SYNTAX HIGHLIGHTING (lightweight engine)
+// SYNTAX HIGHLIGHT THEMES
 // ============================================
-const SYNTAX_THEMES = {
+const THEMES = {
+  'tokyo-night': {
+    keyword: '#bb9af7', string: '#9ece6a', number: '#ff9e64',
+    comment: '#565f89', func: '#7dcfff', type: '#2ac3de',
+    operator: '#89ddff', variable: '#c0caf5', bg: '#1a1b26', text: '#c0caf5'
+  },
   dracula: {
     keyword: '#ff79c6', string: '#f1fa8c', number: '#bd93f9',
     comment: '#6272a4', func: '#50fa7b', type: '#8be9fd',
-    operator: '#ff79c6', variable: '#f8f8f2', bg: '#282a36',
-    text: '#f8f8f2'
+    operator: '#ff79c6', variable: '#f8f8f2', bg: '#282a36', text: '#f8f8f2'
   },
   nord: {
     keyword: '#81a1c1', string: '#a3be8c', number: '#b48ead',
     comment: '#4c566a', func: '#88c0d0', type: '#8fbcbb',
-    operator: '#81a1c1', variable: '#d8dee9', bg: '#2e3440',
-    text: '#d8dee9'
+    operator: '#81a1c1', variable: '#d8dee9', bg: '#2e3440', text: '#d8dee9'
   },
   monokai: {
     keyword: '#f92672', string: '#e6db74', number: '#ae81ff',
     comment: '#75715e', func: '#a6e22e', type: '#66d9ef',
-    operator: '#f92672', variable: '#f8f8f2', bg: '#272822',
-    text: '#f8f8f2'
+    operator: '#f92672', variable: '#f8f8f2', bg: '#272822', text: '#f8f8f2'
   },
   'github-dark': {
     keyword: '#ff7b72', string: '#a5d6ff', number: '#79c0ff',
     comment: '#8b949e', func: '#d2a8ff', type: '#ffa657',
-    operator: '#ff7b72', variable: '#e6edf3', bg: '#0d1117',
-    text: '#e6edf3'
+    operator: '#ff7b72', variable: '#e6edf3', bg: '#0d1117', text: '#e6edf3'
   },
   'one-dark': {
     keyword: '#c678dd', string: '#98c379', number: '#d19a66',
     comment: '#5c6370', func: '#61afef', type: '#e5c07b',
-    operator: '#c678dd', variable: '#abb2bf', bg: '#1e2127',
-    text: '#abb2bf'
-  },
-  'solarized-dark': {
-    keyword: '#859900', string: '#2aa198', number: '#d33682',
-    comment: '#586e75', func: '#268bd2', type: '#b58900',
-    operator: '#859900', variable: '#93a1a1', bg: '#002b36',
-    text: '#93a1a1'
+    operator: '#c678dd', variable: '#abb2bf', bg: '#1e2127', text: '#abb2bf'
   }
 };
 
-function highlightSyntax(code, lang, themeName = 'dracula') {
-  const theme = SYNTAX_THEMES[themeName] || SYNTAX_THEMES.dracula;
-  const escaped = code
+const KEYWORDS = {
+  javascript: ['const','let','var','function','return','if','else','for','while','do','switch','case','break','continue','new','this','class','extends','import','export','default','from','async','await','try','catch','throw','typeof','instanceof','in','of','yield','static','get','set','null','undefined','true','false'],
+  typescript: ['const','let','var','function','return','if','else','for','while','interface','type','enum','class','extends','implements','import','export','default','from','async','await','try','catch','throw','public','private','protected','readonly','static','abstract','as','is','keyof','typeof','never','unknown','any','string','number','boolean','void','null','undefined'],
+  python: ['def','return','if','elif','else','for','while','in','not','and','or','is','None','True','False','class','import','from','as','try','except','finally','raise','with','pass','break','continue','lambda','yield','async','await','self','global','nonlocal'],
+  rust: ['fn','let','mut','return','if','else','match','for','while','loop','in','struct','enum','impl','trait','use','mod','pub','crate','self','super','where','as','async','await','unsafe','ref','move','dyn','type','const','static','true','false','Some','None','Ok','Err'],
+  go: ['func','return','if','else','for','range','switch','case','default','break','continue','go','defer','select','chan','map','struct','interface','type','package','import','var','const','true','false','nil','make','new','append','len','cap','error'],
+  java: ['public','private','protected','static','final','class','interface','extends','implements','return','if','else','for','while','do','switch','case','break','continue','new','this','super','try','catch','finally','throw','throws','import','package','void','int','boolean','String','null','true','false'],
+  cpp: ['int','float','double','char','void','bool','auto','const','static','class','struct','enum','union','public','private','protected','virtual','override','return','if','else','for','while','do','switch','case','break','continue','new','delete','this','namespace','using','template','typename','true','false','nullptr'],
+  csharp: ['public','private','protected','internal','static','readonly','virtual','override','abstract','sealed','async','await','class','struct','interface','enum','namespace','using','return','if','else','for','foreach','while','do','switch','case','break','continue','new','this','base','try','catch','finally','throw','var','true','false','null','string','int','bool'],
+  ruby: ['def','end','return','if','elsif','else','unless','for','while','until','do','each','map','select','class','module','require','include','extend','attr_reader','attr_writer','attr_accessor','private','protected','public','self','true','false','nil'],
+  php: ['function','return','if','else','elseif','for','foreach','while','switch','case','break','continue','class','interface','trait','extends','implements','abstract','final','public','private','protected','static','const','new','this','parent','self','try','catch','throw','namespace','use','require','include','echo','true','false','null','array'],
+  swift: ['func','var','let','return','if','else','guard','for','while','repeat','switch','case','break','continue','class','struct','enum','protocol','extension','import','init','deinit','public','private','internal','fileprivate','static','override','throws','rethrows','async','await','true','false','nil','self','super'],
+  kotlin: ['fun','val','var','return','if','else','when','for','while','do','break','continue','class','data','object','companion','interface','enum','sealed','open','abstract','override','private','protected','public','internal','import','package','suspend','init','constructor','true','false','null','this','super'],
+  sql: ['SELECT','FROM','WHERE','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','ALTER','DROP','INDEX','JOIN','LEFT','RIGHT','INNER','OUTER','ON','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','AS','ORDER','BY','GROUP','HAVING','LIMIT','OFFSET','UNION','ALL','DISTINCT','COUNT','SUM','AVG','MIN','MAX','EXISTS','CASE','WHEN','THEN','ELSE','END','BEGIN','COMMIT','ROLLBACK'],
+  bash: ['echo','export','source','if','then','else','elif','fi','for','while','do','done','case','esac','function','return','exit','local','read','set','unset','trap','exec','cd','ls','rm','mv','cp','mkdir','chmod','grep','sed','awk','cat'],
+  html: ['html','head','body','div','span','p','a','img','ul','ol','li','table','tr','td','th','form','input','button','select','option','textarea','h1','h2','h3','h4','h5','h6','header','footer','section','article','nav','main','aside','script','style','link','meta','title'],
+  css: ['color','background','margin','padding','border','font','display','position','width','height','top','left','right','bottom','flex','grid','align','justify','text','box','shadow','transform','transition','animation','opacity','overflow','z-index'],
+  solidity: ['pragma','contract','interface','library','import','constructor','function','modifier','event','enum','struct','mapping','address','uint','int','bool','string','bytes','msg','tx','block','require','revert','assert','emit','public','private','internal','external','view','pure','payable','memory','storage','calldata','virtual','override','abstract','is','returns','return','if','else','for','while']
+};
+
+function syntaxHighlight(code, lang, themeName = 'tokyo-night') {
+  const theme = THEMES[themeName] || THEMES['tokyo-night'];
+  const kws = KEYWORDS[lang] || KEYWORDS.javascript;
+
+  let out = code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  const keywords = {
-    javascript: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'new', 'this', 'class', 'extends', 'import', 'export', 'default', 'from', 'async', 'await', 'try', 'catch', 'throw', 'typeof', 'instanceof', 'in', 'of', 'yield', 'static', 'get', 'set'],
-    typescript: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'interface', 'type', 'enum', 'class', 'extends', 'implements', 'import', 'export', 'default', 'from', 'async', 'await', 'try', 'catch', 'throw', 'public', 'private', 'protected', 'readonly', 'static', 'abstract', 'as', 'is', 'keyof', 'typeof', 'never', 'unknown', 'any'],
-    python: ['def', 'return', 'if', 'elif', 'else', 'for', 'while', 'in', 'not', 'and', 'or', 'is', 'None', 'True', 'False', 'class', 'import', 'from', 'as', 'try', 'except', 'finally', 'raise', 'with', 'as', 'pass', 'break', 'continue', 'lambda', 'yield', 'async', 'await', 'self', 'global', 'nonlocal'],
-    rust: ['fn', 'let', 'mut', 'return', 'if', 'else', 'match', 'for', 'while', 'loop', 'in', 'struct', 'enum', 'impl', 'trait', 'use', 'mod', 'pub', 'crate', 'self', 'super', 'where', 'as', 'async', 'await', 'unsafe', 'ref', 'move', 'dyn', 'type', 'const', 'static', 'true', 'false'],
-    go: ['func', 'return', 'if', 'else', 'for', 'range', 'switch', 'case', 'default', 'break', 'continue', 'go', 'defer', 'select', 'chan', 'map', 'struct', 'interface', 'type', 'package', 'import', 'var', 'const', 'true', 'false', 'nil', 'make', 'new', 'append', 'len', 'cap'],
-    java: ['public', 'private', 'protected', 'static', 'final', 'class', 'interface', 'extends', 'implements', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'new', 'this', 'super', 'try', 'catch', 'finally', 'throw', 'throws', 'import', 'package', 'void', 'int', 'boolean', 'string', 'null', 'true', 'false'],
-    cpp: ['int', 'float', 'double', 'char', 'void', 'bool', 'auto', 'const', 'static', 'class', 'struct', 'enum', 'union', 'public', 'private', 'protected', 'virtual', 'override', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'new', 'delete', 'this', 'namespace', 'using', 'include', 'template', 'typename', 'true', 'false', 'nullptr'],
-    csharp: ['public', 'private', 'protected', 'internal', 'static', 'readonly', 'virtual', 'override', 'abstract', 'sealed', 'async', 'await', 'class', 'struct', 'interface', 'enum', 'namespace', 'using', 'return', 'if', 'else', 'for', 'foreach', 'while', 'do', 'switch', 'case', 'break', 'continue', 'new', 'this', 'base', 'try', 'catch', 'finally', 'throw', 'var', 'true', 'false', 'null', 'get', 'set', 'value'],
-    ruby: ['def', 'end', 'return', 'if', 'elsif', 'else', 'unless', 'for', 'while', 'until', 'do', 'each', 'map', 'select', 'class', 'module', 'require', 'include', 'extend', 'attr_reader', 'attr_writer', 'attr_accessor', 'private', 'protected', 'public', 'self', 'true', 'false', 'nil'],
-    php: ['function', 'return', 'if', 'else', 'elseif', 'for', 'foreach', 'while', 'switch', 'case', 'break', 'continue', 'class', 'interface', 'trait', 'extends', 'implements', 'abstract', 'final', 'public', 'private', 'protected', 'static', 'const', 'var', 'new', 'this', 'parent', 'self', 'try', 'catch', 'throw', 'namespace', 'use', 'require', 'include', 'echo', 'true', 'false', 'null', 'array'],
-    swift: ['func', 'var', 'let', 'return', 'if', 'else', 'guard', 'for', 'while', 'repeat', 'switch', 'case', 'break', 'continue', 'class', 'struct', 'enum', 'protocol', 'extension', 'import', 'init', 'deinit', 'public', 'private', 'internal', 'fileprivate', 'static', 'override', 'throws', 'rethrows', 'async', 'await', 'true', 'false', 'nil', 'self', 'super'],
-    kotlin: ['fun', 'val', 'var', 'return', 'if', 'else', 'when', 'for', 'while', 'do', 'break', 'continue', 'class', 'data', 'object', 'companion', 'interface', 'enum', 'sealed', 'open', 'abstract', 'override', 'private', 'protected', 'public', 'internal', 'import', 'package', 'suspend', 'init', 'constructor', 'true', 'false', 'null', 'this', 'super'],
-    sql: ['SELECT', 'FROM', 'WHERE', 'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE', 'CREATE', 'TABLE', 'ALTER', 'DROP', 'INDEX', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'ON', 'AND', 'OR', 'NOT', 'IN', 'LIKE', 'BETWEEN', 'IS', 'NULL', 'AS', 'ORDER', 'BY', 'GROUP', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL', 'DISTINCT', 'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'EXISTS', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'BEGIN', 'COMMIT', 'ROLLBACK'],
-    bash: ['echo', 'export', 'source', 'if', 'then', 'else', 'elif', 'fi', 'for', 'while', 'do', 'done', 'case', 'esac', 'function', 'return', 'exit', 'local', 'read', 'set', 'unset', 'trap', 'exec', 'cd', 'ls', 'rm', 'mv', 'cp', 'mkdir', 'chmod', 'chown', 'grep', 'sed', 'awk', 'cat'],
-    html: ['html', 'head', 'body', 'div', 'span', 'p', 'a', 'img', 'ul', 'ol', 'li', 'table', 'tr', 'td', 'th', 'form', 'input', 'button', 'select', 'option', 'textarea', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'section', 'article', 'nav', 'main', 'aside', 'script', 'style', 'link', 'meta', 'title'],
-    css: ['color', 'background', 'margin', 'padding', 'border', 'font', 'display', 'position', 'width', 'height', 'top', 'left', 'right', 'bottom', 'flex', 'grid', 'align', 'justify', 'text', 'box', 'shadow', 'transform', 'transition', 'animation', 'opacity', 'overflow', 'z-index', 'important'],
-    solidity: ['pragma', 'contract', 'interface', 'library', 'import', 'constructor', 'function', 'modifier', 'event', 'enum', 'struct', 'mapping', 'address', 'uint', 'int', 'bool', 'string', 'bytes', 'msg', 'tx', 'block', 'require', 'revert', 'assert', 'emit', 'public', 'private', 'internal', 'external', 'view', 'pure', 'payable', 'memory', 'storage', 'calldata', 'virtual', 'override', 'abstract', 'is', 'returns', 'return', 'if', 'else', 'for', 'while', 'do', 'mapping']
-  };
+  // Strings
+  out = out.replace(/(["'`])(?:(?!\1|\\).|\\.)*\1/g, m =>
+    `<span style="color:${theme.string}">${m}</span>`);
 
-  const langKeywords = keywords[lang] || keywords.javascript;
-
-  let result = escaped;
-
-  // Strings (double & single quotes, backticks)
-  result = result.replace(/(["'`])(?:(?!\1|\\).|\\.)*\1/g, (m) =>
-    `<span style="color:${theme.string}">${m}</span>`
-  );
-
-  // Comments (line & block)
-  result = result.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$|--.*$)/gm, (m) =>
-    `<span style="color:${theme.comment};font-style:italic">${m}</span>`
-  );
+  // Comments
+  out = out.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$|--.*$)/gm, m =>
+    `<span style="color:${theme.comment};font-style:italic">${m}</span>`);
 
   // Numbers
-  result = result.replace(/\b(\d+\.?\d*)\b/g, (m) =>
-    `<span style="color:${theme.number}">${m}</span>`
-  );
+  out = out.replace(/\b(\d+\.?\d*)\b/g, m =>
+    `<span style="color:${theme.number}">${m}</span>`);
 
   // Keywords
-  const kwPattern = new RegExp(`\\b(${langKeywords.join('|')})\\b`, 'gi');
-  result = result.replace(kwPattern, (m) => {
-    const isKeyword = langKeywords.some(kw => kw.toLowerCase() === m.toLowerCase());
-    return isKeyword ? `<span style="color:${theme.keyword};font-weight:500">${m}</span>` : m;
-  });
+  const kwRe = new RegExp(`\\b(${kws.join('|')})\\b`, 'g');
+  out = out.replace(kwRe, m =>
+    `<span style="color:${theme.keyword};font-weight:500">${m}</span>`);
 
-  // Function calls (word followed by parenthesis)
-  result = result.replace(/\b([a-zA-Z_$][\w$]*)\s*\(/g, (m, fn) =>
-    `<span style="color:${theme.func}">${fn}</span>(`
-  );
+  // Function calls
+  out = out.replace(/\b([a-zA-Z_$][\w$]*)\s*\(/g, (m, fn) =>
+    `<span style="color:${theme.func}">${fn}</span>(`);
 
-  // Types / classes (PascalCase)
-  result = result.replace(/\b([A-Z][a-z]\w*)\b/g, (m) => {
-    if (!m.includes('(')) {
-      return `<span style="color:${theme.type}">${m}</span>`;
-    }
-    return m;
-  });
+  // PascalCase types
+  out = out.replace(/\b([A-Z][a-z]\w*)\b/g, m =>
+    `<span style="color:${theme.type}">${m}</span>`);
 
-  return `<code style="color:${theme.text}">${result}</code>`;
+  return `<span style="color:${theme.text}">${out}</span>`;
 }
 
 // ============================================
@@ -190,42 +175,49 @@ function highlightSyntax(code, lang, themeName = 'dracula') {
 function generateReadme() {
   const name = DOM.projectName.value.trim() || 'my-project';
   const tagline = DOM.projectTagline.value.trim() || 'A powerful project built with passion.';
-  const desc = DOM.projectDesc.value.trim() || 'An amazing project that solves real-world problems efficiently and elegantly.';
+  const desc = DOM.projectDesc.value.trim() || 'An amazing project that solves real-world problems efficiently.';
   const lang = DOM.projectLang.value.trim() || 'TypeScript';
   const license = DOM.projectLicense.value;
   const badgeStyle = DOM.projectBadgeStyle.value;
   const features = DOM.projectFeatures.value.trim().split('\n').filter(Boolean);
   const installSteps = DOM.projectInstall.value.trim().split('\n').filter(Boolean);
+  const github = DOM.projectGithub.value.trim() || 'your-username';
   const animStyle = [...DOM.animRadios].find(r => r.checked)?.value || 'typewriter';
 
-  const badgeURL = (label, message, color) =>
-    `https://img.shields.io/badge/${encodeURIComponent(label)}-${encodeURIComponent(message)}-${color}?style=${badgeStyle}`;
+  const badge = (label, msg, color) =>
+    `![${label}](https://img.shields.io/badge/${encodeURIComponent(label)}-${encodeURIComponent(msg)}-${color}?style=${badgeStyle})`;
 
-  const licenseBadge = license === 'custom' ? '' : 
-    `![License](${badgeURL('license', license, license === 'MIT' ? 'green' : license === 'Apache-2.0' ? 'blue' : license === 'GPL-3.0' ? 'orange' : 'lightgrey')})`;
+  const langColors = {
+    Python: '3776AB', Rust: 'DEA584', TypeScript: '3178C6', JavaScript: 'F7DF1E',
+    Go: '00ADD8', Java: 'ED8B00', Swift: 'FA7343', Kotlin: '7F52FF',
+    Ruby: 'CC342D', PHP: '777BB4', Solidity: '363636'
+  };
 
-  const langBadge = lang ? `![Language](https://img.shields.io/badge/language-${encodeURIComponent(lang)}-${lang === 'Python' ? '3776AB' : lang === 'Rust' ? 'DEA584' : lang === 'TypeScript' ? '3178C6' : lang === 'JavaScript' ? 'F7DF1E' : lang === 'Go' ? '00ADD8' : 'blue'}?style=${badgeStyle})` : '';
+  const licenseColor = { MIT: '22c55e', 'Apache-2.0': '3b82f6', 'GPL-3.0': 'f97316', 'BSD-3': '8b5cf6', Unlicense: '6b7280' };
+  const licenseBadge = license !== 'custom'
+    ? badge('license', license, licenseColor[license] || 'lightgrey')
+    : '';
 
-  // Build Features Markdown
+  const langColor = langColors[lang] || '0ea5e9';
+  const langBadge = lang ? `![Language](https://img.shields.io/badge/language-${encodeURIComponent(lang)}-${langColor}?style=${badgeStyle})` : '';
+
   const featuresMd = features.length > 0
     ? features.map(f => `- ${f}`).join('\n')
-    : '- 🚀 High performance and blazing fast\n- 🔒 Enterprise-grade security\n- 🎨 Beautiful, intuitive interface';
+    : `- ⚡ Blazing fast performance\n- 🔒 Secure by design\n- 🎨 Beautiful user experience`;
 
-  // Build Install Markdown
   const installMd = installSteps.length > 0
-    ? installSteps.map(s => `\`\`\`bash\n${s}\n\`\`\``).join('\n\n')
-    : `\`\`\`bash\ngit clone https://github.com/your-username/${name}.git\ncd ${name}\nnpm install\nnpm run dev\n\`\`\``;
+    ? '```bash\n' + installSteps.join('\n') + '\n```'
+    : `\`\`\`bash\ngit clone https://github.com/${github}/${name}.git\ncd ${name}\nnpm install\nnpm run dev\n\`\`\``;
 
-  // Build complete README
   const readme = `# ${name}
 
 > ${tagline}
 
-${langBadge} ${licenseBadge} ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=${badgeStyle}) ![Maintained](https://img.shields.io/badge/maintained-yes-${license === 'MIT' ? 'green' : 'blue'}?style=${badgeStyle})
+${langBadge} ${licenseBadge} ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=${badgeStyle}) ![Stars](https://img.shields.io/github/stars/${github}/${name}?style=${badgeStyle})
 
 ---
 
-## 📖 Description
+## 📖 About
 
 ${desc}
 
@@ -237,63 +229,82 @@ ${featuresMd}
 
 ---
 
-## 🚀 Installation
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure you have the required tools installed before proceeding.
+
+### Installation
 
 ${installMd}
 
 ---
 
-## 📄 License
+## 📖 Usage
 
-${license === 'custom' ? 'This project is licensed under custom terms. See the [LICENSE](./LICENSE) file for details.' : `This project is licensed under the **${license} License**.`}
+\`\`\`${lang.toLowerCase()}
+// Example usage here
+\`\`\`
 
 ---
 
-<p align="center">Made with ❤️ by <a href="https://github.com/your-username">@your-username</a></p>
+## 🤝 Contributing
+
+Contributions are always welcome!
+
+1. Fork the repository
+2. Create your feature branch (\`git checkout -b feature/amazing-feature\`)
+3. Commit your changes (\`git commit -m 'Add amazing feature'\`)
+4. Push to the branch (\`git push origin feature/amazing-feature\`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+${license === 'custom'
+    ? 'This project uses a custom license. See [LICENSE](./LICENSE) for details.'
+    : `This project is licensed under the **${license} License** — see the [LICENSE](./LICENSE) file for details.`}
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/${github}">@${github}</a>
+  <br/>
+  <a href="https://github.com/${github}/${name}/issues">Report Bug</a> ·
+  <a href="https://github.com/${github}/${name}/issues">Request Feature</a>
+</p>
 `;
 
   STATE.lastReadme = readme;
   return { readme, animStyle };
 }
 
-function renderPreview(readme, animStyle) {
-  const preview = DOM.preview;
-  
-  // Convert basic markdown to HTML for preview
-  const html = markdownToHtml(readme);
-  
-  preview.innerHTML = html;
-  preview.className = 'preview-content';
-  
-  // Add animation class
-  if (animStyle) {
-    preview.classList.add(`anim-${animStyle}`);
-  }
-
-  DOM.previewContainer.classList.remove('hidden');
-  DOM.btnCopy.disabled = false;
-  DOM.btnSave.disabled = false;
-}
-
-function markdownToHtml(md) {
+function renderMarkdown(md) {
   let html = md;
 
-  // Code blocks (fenced)
-  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
-    const highlighted = highlightSyntax(code.trim(), lang || 'javascript', STATE.settings.syntaxTheme);
-    return `<pre>${highlighted}</pre>`;
+  // Fenced code blocks
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, l, code) => {
+    const hl = syntaxHighlight(code.trim(), l || 'javascript', STATE.settings.syntaxTheme);
+    return `<pre><code class="hl-block">${hl}</code></pre>`;
   });
 
   // Inline code
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-  // Images
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  // Images (badge-style)
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, src) => {
+    if (src.includes('shields.io') || src.includes('badge')) {
+      return `<img src="${src}" alt="${alt}" style="display:inline-block;margin:1px;vertical-align:middle" />`;
+    }
+    return `<img src="${src}" alt="${alt}" />`;
+  });
 
   // Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
 
-  // Bold + Italic
+  // Bold + italic
   html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
   html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
@@ -306,21 +317,19 @@ function markdownToHtml(md) {
   // Blockquotes
   html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
 
-  // Horizontal rules
+  // HR
   html = html.replace(/^---$/gm, '<hr />');
 
-  // Unordered lists
+  // Lists
+  html = html.replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>');
   html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  html = html.replace(/(<li>[\s\S]*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+
+  // Center align
+  html = html.replace(/<p align="center">/g, '<p style="text-align:center">');
 
   // Paragraphs
   html = html.replace(/\n\n/g, '</p><p>');
-  
-  // Clean up consecutive blockquotes
-  html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br />');
-
-  // Align center
-  html = html.replace(/<p align="center">/g, '<p style="text-align:center">');
 
   return `<p>${html}</p>`;
 }
@@ -333,348 +342,261 @@ function explainCode() {
   const code = DOM.codeInput.value;
   const lang = DOM.codeLanguage.value;
   const depth = DOM.explainDepth.value;
-  const themeName = DOM.syntaxTheme.value;
+  const langName = DOM.codeLanguage.options[DOM.codeLanguage.selectedIndex].text;
 
   if (!code.trim()) {
-    DOM.explanationBody.innerHTML = '<p style="color:var(--red)">Please paste some code first.</p>';
-    DOM.explanationOutput.classList.remove('hidden');
+    showToast('Paste some code first', 'error');
     return;
   }
 
-  const lines = code.split('\n');
-  const langName = DOM.codeLanguage.options[DOM.codeLanguage.selectedIndex].text;
-  const theme = SYNTAX_THEMES[themeName] || SYNTAX_THEMES.dracula;
-
-  // Generate intelligent explanations based on code analysis
-  const explanation = generateCodeExplanation(code, lines, lang, depth, theme);
-  
-  DOM.explanationBody.innerHTML = explanation;
+  const html = buildExplanationHTML(code, lang, langName, depth);
+  DOM.explanationBody.innerHTML = html;
   DOM.explanationOutput.classList.remove('hidden');
-  STATE.lastExplanation = explanation;
+  STATE.lastExplanation = DOM.explanationBody.innerText;
 
-  // Save to history
   saveToHistory('code', {
     lang: langName,
-    code: code,
-    preview: code.substring(0, 60) + (code.length > 60 ? '...' : ''),
+    code,
+    preview: code.substring(0, 60) + (code.length > 60 ? '…' : ''),
     timestamp: new Date().toLocaleString()
   });
+
+  // Scroll into view
+  setTimeout(() => {
+    DOM.explanationOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
 }
 
-function generateCodeExplanation(code, lines, lang, depth, theme) {
-  const sections = [];
-  
-  // First analyze the code structure
-  const analysis = analyzeCode(code, lang);
-  
-  // Overview section
-  sections.push(`<div class="section-title">📋 Overview</div>`);
-  sections.push(`<p style="margin-bottom:10px">${analysis.overview}</p>`);
+function buildExplanationHTML(code, lang, langName, depth) {
+  const lines = code.split('\n');
+  const analysis = analyzeCode(code, lang, langName, lines.length);
+  const detailed = depth !== 'simple';
+  const advanced = depth === 'advanced';
+  const theme = THEMES[STATE.settings.syntaxTheme] || THEMES['tokyo-night'];
 
-  if (analysis.complexity) {
-    sections.push(`<p style="color:var(--text-secondary);margin-bottom:10px;font-size:11px">
-      Complexity: <strong>${analysis.complexity}</strong> | 
-      Lines: <strong>${lines.length}</strong> | 
-      Language: <strong>${DOM.codeLanguage.options[DOM.codeLanguage.selectedIndex].text}</strong>
-    </p>`);
-  }
-
-  // Structure section if applicable
-  if (analysis.structure) {
-    sections.push(`<div class="section-title">🏗️ Structure</div>`);
-    sections.push(`<p style="margin-bottom:10px">${analysis.structure}</p>`);
-  }
-
-  // Line-by-line explanation
-  sections.push(`<div class="section-title">🔍 Line-by-Line Breakdown</div>`);
-
-  lines.forEach((line, i) => {
-    const lineNum = i + 1;
-    const trimmed = line.trim();
-    
-    if (!trimmed) {
-      sections.push(`
-        <div class="code-line">
-          <span class="line-num">${lineNum}</span>
-          <span class="line-code" style="color:${theme.text}">&nbsp;</span>
-          <span class="line-explain" style="color:var(--text-muted)">&nbsp;</span>
-        </div>
-      `);
-      return;
-    }
-
-    const highlighted = highlightSyntax(line, lang, DOM.syntaxTheme.value);
-    const lineExplain = explainLine(trimmed, lang, depth);
-    
-    sections.push(`
-      <div class="code-line">
-        <span class="line-num">${lineNum}</span>
-        <span class="line-code">${highlighted}</span>
-        <span class="line-explain">${lineExplain}</span>
-      </div>
-    `);
-  });
-
-  // Key concepts section
-  if (analysis.concepts && analysis.concepts.length > 0) {
-    sections.push(`<div class="section-title">💡 Key Concepts</div>`);
-    analysis.concepts.forEach(concept => {
-      sections.push(`<p style="margin-bottom:6px">• <strong>${concept.name}:</strong> ${concept.description}</p>`);
-    });
-  }
-
-  // Suggestions
-  if (depth === 'advanced' && analysis.suggestions) {
-    sections.push(`<div class="section-title">🔧 Suggestions & Improvements</div>`);
-    analysis.suggestions.forEach(s => {
-      sections.push(`<p style="margin-bottom:4px;color:var(--orange)">• ${s}</p>`);
-    });
-  }
-
-  return sections.join('\n');
-}
-
-function analyzeCode(code, lang) {
-  const analysis = {};
-
-  // Detect patterns
-  const hasClass = /\bclass\s+\w+/.test(code);
-  const hasFunction = /\b(function|def|fn|func)\s+\w+/.test(code);
-  const hasLoop = /\b(for|while|each|loop)\b/.test(code);
-  const hasConditional = /\b(if|else|switch|match|case)\b/.test(code);
-  const hasAsync = /\b(async|await|defer|\.then|\.catch)\b/.test(code);
-  const hasImport = /\b(import|require|use|include|#include|package|from)\b/.test(code);
-  const hasErrorHandling = /\b(try|catch|except|throw|revert|require|rescue)\b/.test(code);
-  const hasArrow = /=>/.test(code);
-  const hasPromise = /\bPromise\b|\.then\(|async/.test(code);
-  
-  const lineCount = code.split('\n').length;
+  const parts = [];
 
   // Overview
-  const patterns = [];
-  if (hasClass) patterns.push('Object-Oriented');
-  if (hasFunction) patterns.push('Function-Based');
-  if (hasAsync) patterns.push('Asynchronous');
-  if (hasLoop) patterns.push('Iterative Logic');
-  if (hasConditional) patterns.push('Decision Logic');
-  if (hasImport) patterns.push('Modular (imports)');
-  if (hasErrorHandling) patterns.push('Error Handling');
-
-  const patternStr = patterns.length > 0 ? patterns.join(', ') : 'Procedural';
-  
-  if (lineCount <= 10) {
-    analysis.overview = `This is a short ${lang} snippet (${lineCount} lines) using ${patternStr.toLowerCase()} patterns. It appears to be a focused piece of logic with clear intent.`;
-    analysis.complexity = 'Low';
-  } else if (lineCount <= 30) {
-    analysis.overview = `This ${lang} code (${lineCount} lines) combines ${patternStr.toLowerCase()} patterns. The code has moderate structure with well-defined operations.`;
-    analysis.complexity = 'Low-Medium';
-  } else if (lineCount <= 80) {
-    analysis.overview = `This ${lang} module (${lineCount} lines) demonstrates ${patternStr.toLowerCase()} architecture. The code is organized into logical sections with multiple operations.`;
-    analysis.complexity = 'Medium';
-  } else {
-    analysis.overview = `This is a substantial ${lang} codebase (${lineCount} lines) following ${patternStr.toLowerCase()} paradigms. It contains complex logic spanning multiple concerns.`;
-    analysis.complexity = 'Medium-High';
-  }
+  parts.push(`
+    <div class="section-header">📋 Overview</div>
+    <div class="overview-block">
+      <div class="overview-text">${analysis.overview}</div>
+      <div class="meta-chips">
+        <span class="chip chip-complexity">Complexity: ${analysis.complexity}</span>
+        <span class="chip chip-lines">${lines.length} lines</span>
+        <span class="chip chip-lang">${langName}</span>
+      </div>
+    </div>
+  `);
 
   // Structure
-  if (hasClass) {
-    const classMatch = code.match(/class\s+(\w+)/);
-    const className = classMatch ? classMatch[1] : 'ClassName';
-    const methodCount = (code.match(/\b(function|def|fn|func)\s+\w+/g) || []).length;
-    analysis.structure = `The code defines a class <strong>${className}</strong> with ${methodCount > 0 ? `${methodCount} method${methodCount > 1 ? 's' : ''}` : 'properties'}. ${hasImport ? 'External dependencies are imported at the top.' : ''}`;
-  } else if (hasFunction) {
-    const funcCount = (code.match(/\b(function|def|fn|func)\s+\w+/g) || []).length;
-    analysis.structure = `The code contains ${funcCount} function${funcCount > 1 ? 's' : ''} with ${hasImport ? 'imports at the top and ' : ''}${hasConditional ? 'conditional logic' : 'sequential execution'}.`;
+  if (analysis.structure) {
+    parts.push(`
+      <div class="section-header">🏗️ Structure</div>
+      <div class="overview-block">
+        <div class="overview-text">${analysis.structure}</div>
+      </div>
+    `);
+  }
+
+  // Line breakdown
+  parts.push(`<div class="section-header">🔍 Line Breakdown</div>`);
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+    const lineNum = i + 1;
+
+    if (!trimmed) {
+      parts.push(`<div class="code-line-row"><span class="ln">${lineNum}</span><span class="lc">&nbsp;</span><span class="le"></span></div>`);
+      continue;
+    }
+
+    const hl = syntaxHighlight(raw, lang, STATE.settings.syntaxTheme);
+    const explain = explainLine(trimmed, lang, depth);
+
+    parts.push(`
+      <div class="code-line-row">
+        <span class="ln">${lineNum}</span>
+        <span class="lc">${hl}</span>
+        <span class="le">${explain}</span>
+      </div>
+    `);
   }
 
   // Key concepts
-  analysis.concepts = [];
-  
-  if (hasAsync) {
-    analysis.concepts.push({
-      name: 'Asynchronous Execution',
-      description: 'This code uses async/await (or promise chaining) for non-blocking operations, allowing the program to continue executing while waiting for I/O, network, or timer events.'
-    });
+  if (analysis.concepts.length > 0) {
+    parts.push(`<div class="section-header">💡 Key Concepts</div>`);
+    for (const c of analysis.concepts) {
+      parts.push(`
+        <div class="concept-card">
+          <div class="concept-name">${c.name}</div>
+          <div class="concept-desc">${c.description}</div>
+        </div>
+      `);
+    }
   }
-  
+
+  // Suggestions (advanced)
+  if (advanced && analysis.suggestions.length > 0) {
+    parts.push(`<div class="section-header">🔧 Suggestions</div>`);
+    for (const s of analysis.suggestions) {
+      parts.push(`<div class="suggestion-item"><span>⚠</span><span>${s}</span></div>`);
+    }
+  }
+
+  return parts.join('');
+}
+
+function analyzeCode(code, lang, langName, lineCount) {
+  const has = (re) => re.test(code);
+
+  const hasClass = has(/\bclass\s+\w+/);
+  const hasFunc = has(/\b(function|def|fn|func|fun)\s+\w+/);
+  const hasAsync = has(/\b(async|await|defer|\.then|\.catch)\b/);
+  const hasLoop = has(/\b(for|while|each|loop)\b/);
+  const hasCond = has(/\b(if|else|switch|match|case)\b/);
+  const hasImport = has(/\b(import|require|use|include|from|package)\b/);
+  const hasError = has(/\b(try|catch|except|throw|revert|require|rescue)\b/);
+  const hasArrow = has(/=>/);
+  const hasPromise = has(/\bPromise\b|\.then\(|async/);
+
+  const patterns = [];
+  if (hasClass) patterns.push('Object-Oriented');
+  if (hasFunc) patterns.push('Function-Based');
+  if (hasAsync) patterns.push('Asynchronous');
+  if (hasLoop) patterns.push('Iterative');
+  if (hasCond) patterns.push('Conditional Logic');
+  if (hasImport) patterns.push('Modular');
+  if (hasError) patterns.push('Error-Handling');
+  const patStr = patterns.length ? patterns.join(', ') : 'Procedural';
+
+  let complexity, overview;
+  if (lineCount <= 10) { complexity = 'Low'; overview = `A concise ${langName} snippet (${lineCount} lines) using ${patStr.toLowerCase()} patterns. Focused and easy to follow.`; }
+  else if (lineCount <= 30) { complexity = 'Low–Medium'; overview = `A moderate ${langName} function or module (${lineCount} lines) combining ${patStr.toLowerCase()} patterns.`; }
+  else if (lineCount <= 80) { complexity = 'Medium'; overview = `A structured ${langName} module (${lineCount} lines) demonstrating ${patStr.toLowerCase()} architecture across multiple operations.`; }
+  else { complexity = 'Medium–High'; overview = `A substantial ${langName} codebase (${lineCount} lines) following ${patStr.toLowerCase()} paradigms with complex multi-concern logic.`; }
+
+  let structure = '';
   if (hasClass) {
-    analysis.concepts.push({
-      name: 'Object-Oriented Design',
-      description: 'Classes encapsulate data and behavior. This promotes code reuse, maintainability, and clear separation of concerns.'
-    });
-  }
-  
-  if (hasArrow) {
-    analysis.concepts.push({
-      name: 'Arrow Functions / Lambdas',
-      description: 'Concise function syntax with lexical scoping of `this`. Commonly used for callbacks, array methods, and functional programming patterns.'
-    });
-  }
-  
-  if (hasErrorHandling) {
-    analysis.concepts.push({
-      name: 'Error Handling',
-      description: 'The code implements structured error handling to gracefully manage runtime exceptions and edge cases.'
-    });
-  }
-  
-  if (hasPromise) {
-    analysis.concepts.push({
-      name: 'Promise Pattern',
-      description: 'Promises represent values that may be available now, later, or never. They provide a clean way to handle asynchronous operations.'
-    });
+    const m = code.match(/class\s+(\w+)/);
+    const cls = m ? m[1] : 'ClassName';
+    const methods = (code.match(/\b(function|def|fn|func)\s+\w+/g) || []).length;
+    structure = `Defines class <strong>${cls}</strong> with ${methods > 0 ? `${methods} method${methods > 1 ? 's' : ''}` : 'properties'}. ${hasImport ? 'External dependencies imported.' : ''}`;
+  } else if (hasFunc) {
+    const count = (code.match(/\b(function|def|fn|func|fun)\s+\w+/g) || []).length;
+    structure = `Contains ${count} function${count > 1 ? 's' : ''} with ${hasImport ? 'imports and ' : ''}${hasCond ? 'conditional logic' : 'sequential execution'}.`;
   }
 
-  // Suggestions (advanced mode)
-  analysis.suggestions = [];
-  if (lineCount > 50 && !hasClass && !hasFunction) {
-    analysis.suggestions.push('Consider breaking this long script into functions or classes for better maintainability.');
-  }
-  if (!hasErrorHandling && (hasAsync || hasPromise)) {
-    analysis.suggestions.push('Add error handling (try/catch) around async operations to prevent unhandled promise rejections.');
-  }
-  if (code.includes('var ')) {
-    analysis.suggestions.push('Consider using `const` or `let` instead of `var` for better scoping and to avoid hoisting issues.');
-  }
-  if (code.includes('== ') && !code.includes('===')) {
-    analysis.suggestions.push('Consider using strict equality (`===`) instead of loose equality (`==`) to avoid type coercion bugs.');
-  }
+  const concepts = [];
+  if (hasAsync) concepts.push({ name: 'Asynchronous Execution', description: 'Uses async/await (or promise chaining) for non-blocking operations, letting the program continue while waiting for I/O or network responses.' });
+  if (hasClass) concepts.push({ name: 'Object-Oriented Design', description: 'Classes encapsulate data and behaviour together, promoting code reuse, modularity, and clear separation of concerns.' });
+  if (hasArrow) concepts.push({ name: 'Arrow Functions / Lambdas', description: 'Concise function syntax with lexical `this` binding. Commonly used for callbacks, array transforms, and functional programming patterns.' });
+  if (hasError) concepts.push({ name: 'Error Handling', description: 'Structured try/catch (or equivalent) blocks manage runtime exceptions gracefully, preventing crashes and enabling recovery paths.' });
+  if (hasPromise) concepts.push({ name: 'Promise Pattern', description: 'Promises represent values available now, later, or never — providing a clean API for async operations and chained transformations.' });
 
-  return analysis;
+  const suggestions = [];
+  if (lineCount > 50 && !hasClass && !hasFunc) suggestions.push('Consider breaking this long script into named functions or classes for better readability and maintainability.');
+  if (!hasError && (hasAsync || hasPromise)) suggestions.push('Add try/catch around async operations to handle rejections and prevent silent failures.');
+  if (code.includes('var ')) suggestions.push('Replace `var` with `const` (for values) or `let` (for reassigned variables) to avoid hoisting bugs and improve scope clarity.');
+  if (/[^=!]=[^=>]/.test(code) && !code.includes('===') && code.includes('==')) suggestions.push('Use strict equality `===` instead of `==` to avoid unexpected type coercion.');
+
+  return { complexity, overview, structure, concepts, suggestions };
 }
 
 function explainLine(line, lang, depth) {
-  const trimmed = line.trim();
-  const isDetailed = depth === 'detailed' || depth === 'advanced';
+  const t = line.trim();
+  const d = depth !== 'simple';
 
-  // Empty
-  if (!trimmed) return '';
+  if (!t) return '';
 
-  // Comments
-  if (/^(\/\/|#|--|\/\*|\*)/.test(trimmed)) {
-    const commentText = trimmed.replace(/^(\/\/|#|--|\/\*|\*\/?)\s*/, '');
-    if (commentText) {
-      return isDetailed ? `📝 Comment: "${commentText}"` : commentText;
+  // Comment
+  if (/^(\/\/|#|--|\/\*|\*)/.test(t)) {
+    const text = t.replace(/^(\/\/|#|--|\/\*|\*\/?)\s*/, '');
+    return text ? (d ? `💬 Comment: <em>${text}</em>` : text) : '💬 Separator comment';
+  }
+
+  // Import
+  if (/^(import|require|use|include|#include|from)\b/.test(t)) {
+    const m = t.match(/['"]([^'"]+)['"]/) || t.match(/\b(\w[\w/]+)\s*$/) || [];
+    const target = m[1] || 'module';
+    return d ? `📦 Imports <strong>${target}</strong> — makes external code available in this file.` : `📦 Import: ${target}`;
+  }
+
+  // Function/def/fn
+  if (/^\s*(export\s+)?(async\s+)?(function|def|fn|func|fun)\s+\w+/.test(t) || /^\s*(const|let)\s+\w+\s*=\s*(async\s*)?\(/.test(t)) {
+    const m = t.match(/(function|def|fn|func|fun)\s+(\w+)/) || t.match(/(?:const|let)\s+(\w+)/);
+    const name = m ? (m[2] || m[1]) : 'fn';
+    const params = (t.match(/\(([^)]*)\)/) || [])[1] || '';
+    const isAsync = /async/.test(t);
+    return d ? `🔧 Defines${isAsync ? ' async' : ''} function <strong>${name}(${params})</strong> — ${params ? `takes ${params.split(',').length} param(s).` : 'no parameters.'}` : `🔧 Function: ${name}(${params})`;
+  }
+
+  // Class
+  if (/^\s*(export\s+)?(abstract\s+)?class\s+\w+/.test(t)) {
+    const m = t.match(/class\s+(\w+)/);
+    const cls = m ? m[1] : 'Class';
+    const ext = (t.match(/extends\s+(\w+)/) || [])[1];
+    return d ? `📐 Declares class <strong>${cls}</strong>${ext ? ` extending <strong>${ext}</strong>` : ''} — a blueprint for creating objects.` : `📐 Class: ${cls}`;
+  }
+
+  // If / else / switch
+  if (/^\s*(if|elsif|elif|else|switch|when)\b/.test(t)) {
+    if (/^\s*else\s*[{$]/.test(t)) return d ? '🔀 Else — fallback when all prior conditions are false.' : '🔀 Else';
+    if (/\belse\s+if|elsif|elif\b/.test(t)) {
+      const cond = t.replace(/^.*?(else\s+if|elsif|elif)\s*/, '').replace(/[:{]\s*$/, '').trim();
+      return d ? `🔀 Else-if: <strong>${cond}</strong> — checked when previous condition failed.` : `🔀 Else-if: ${cond}`;
     }
-    return '📝 Comment separator';
+    const cond = t.replace(/^\s*(if|when|switch)\s*/, '').replace(/[:{]\s*$/, '').trim();
+    return d ? `🔀 If <strong>${cond}</strong> — controls execution path based on this condition.` : `🔀 If: ${cond}`;
   }
 
-  // Import/require/include
-  if (/^(import|require|use|include|#include|from)\b/.test(trimmed)) {
-    const match = trimmed.match(/['"]([^'"]+)['"]/) || trimmed.match(/\b(\w+)\s*$/);
-    const target = match ? match[1] : 'external module';
-    return isDetailed
-      ? `📦 Imports <strong>${target}</strong> — makes external code available for use. Dependency management keeps code modular.`
-      : `📦 Import: ${target}`;
-  }
-
-  // Function/def/fn declaration
-  if (/^\s*(function|def|fn|func|fun)\s+\w+\s*\(/.test(trimmed)) {
-    const match = trimmed.match(/(function|def|fn|func|fun)\s+(\w+)/);
-    const funcName = match ? match[2] : 'anonymous';
-    const params = trimmed.match(/\(([^)]*)\)/);
-    const paramList = params ? params[1] : '';
-    return isDetailed
-      ? `🔧 Defines function <strong>${funcName}(${paramList})</strong> — a reusable block of code. ${paramList ? `Parameters: ${paramList}` : 'No parameters.'}`
-      : `🔧 Function: ${funcName}(${paramList})`;
-  }
-
-  // Class declaration
-  if (/^\s*class\s+\w+/.test(trimmed)) {
-    const match = trimmed.match(/class\s+(\w+)/);
-    const className = match ? match[1] : 'ClassName';
-    const parent = trimmed.match(/extends\s+(\w+)/);
-    const parentStr = parent ? ` extending <strong>${parent[1]}</strong>` : '';
-    return isDetailed
-      ? `📐 Defines class <strong>${className}</strong>${parentStr} — a blueprint for creating objects with shared properties and methods.`
-      : `📐 Class: ${className}${parent ? ` extends ${parent[1]}` : ''}`;
-  }
-
-  // If/else/switch
-  if (/^\s*(if|elsif|elif|else|switch|when|case)/.test(trimmed)) {
-    if (/^\s*else\s*{?$/.test(trimmed)) {
-      return isDetailed ? '🔀 Else branch — executes when the preceding condition is false.' : '🔀 Else branch';
-    }
-    if (/^\s*else\s+if/.test(trimmed) || /^\s*elsif/.test(trimmed) || /^\s*elif/.test(trimmed)) {
-      const cond = trimmed.replace(/^\s*(elsif|elif|else\s+if)\s*/, '').replace(/[:{]\s*$/, '').trim();
-      return isDetailed
-        ? `🔀 Else-if: checks <strong>${cond}</strong> — alternative condition when previous checks fail.`
-        : `🔀 Else-if: ${cond}`;
-    }
-    const cond = trimmed.replace(/^\s*(if|when|case)\s*/, '').replace(/[:{]\s*$/, '').trim();
-    return isDetailed
-      ? `🔀 Conditional: checks if <strong>${cond}</strong> — controls flow based on a boolean expression.`
-      : `🔀 If: ${cond}`;
-  }
-
-  // For/while loops
-  if (/^\s*(for|while|loop|foreach)\b/.test(trimmed)) {
-    const loopType = trimmed.match(/^\s*(for|while|loop|foreach)\b/)[1];
-    const details = trimmed.replace(/^\s*(for|while|loop|foreach)\s*/, '').replace(/[:{]\s*$/, '').trim();
-    return isDetailed
-      ? `🔄 <strong>${loopType}</strong> loop: iterates ${details ? `over <strong>${details}</strong>` : 'over a collection'} — repeats a block of code multiple times.`
-      : `🔄 ${loopType}: ${details || 'loop iteration'}`;
+  // Loops
+  if (/^\s*(for|while|loop|foreach|each)\b/.test(t)) {
+    const type = (t.match(/^\s*(for|while|loop|foreach|each)\b/) || [])[1];
+    const detail = t.replace(/^\s*(for|while|loop|foreach|each)\s*/, '').replace(/[:{]\s*$/, '').trim();
+    return d ? `🔄 <strong>${type}</strong> loop — repeats over <strong>${detail || 'a collection'}</strong>.` : `🔄 ${type}: ${detail || 'loop'}`;
   }
 
   // Return
-  if (/^\s*return\b/.test(trimmed)) {
-    const val = trimmed.replace(/^\s*return\s*/, '').replace(/;?\s*$/, '').trim();
-    return isDetailed
-      ? `↩️ Returns${val ? ` <strong>${val}</strong>` : ''} — exits the current function and optionally sends a value back to the caller.`
-      : `↩️ Return${val ? `: ${val}` : ''}`;
+  if (/^\s*return\b/.test(t)) {
+    const val = t.replace(/^\s*return\s*/, '').replace(/;?\s*$/, '').trim();
+    return d ? `↩️ Returns${val ? ` <strong>${val}</strong>` : ' nothing'} — exits function${val ? ' with a value.' : '.'}` : `↩️ Return${val ? `: ${val}` : ''}`;
   }
 
-  // Try/catch
-  if (/^\s*try\b/.test(trimmed)) {
-    return isDetailed ? '🛡️ Try block — wraps code that may throw an error, allowing graceful recovery.' : '🛡️ Try block';
+  // Try/catch/finally
+  if (/^\s*try\b/.test(t)) return d ? '🛡️ Try block — wraps risky code to allow graceful error recovery.' : '🛡️ Try';
+  if (/^\s*(catch|except|rescue)\b/.test(t)) {
+    const err = ((t.match(/(?:catch|except|rescue)\s*[\(:]?\s*(\w+)/) || [])[1]) || 'error';
+    return d ? `🛡️ Catches <strong>${err}</strong> — handles errors thrown in the try block.` : `🛡️ Catch: ${err}`;
   }
-  if (/^\s*catch\b/.test(trimmed)) {
-    const match = trimmed.match(/catch\s*\(([^)]*)\)/);
-    const err = match ? match[1] : 'error';
-    return isDetailed
-      ? `🛡️ Catch block: handles <strong>${err}</strong> — executes when an error is thrown in the try block.`
-      : `🛡️ Catch: ${err}`;
-  }
-  if (/^\s*finally\b/.test(trimmed)) {
-    return isDetailed ? '🛡️ Finally block — always executes after try/catch for cleanup operations.' : '🛡️ Finally';
+  if (/^\s*finally\b/.test(t)) return d ? '🛡️ Finally — always runs after try/catch for cleanup.' : '🛡️ Finally';
+
+  // Throw / revert / raise
+  if (/^\s*(throw|revert|raise)\b/.test(t)) {
+    const msg = t.replace(/^\s*(throw|revert|raise)\s*/, '').trim();
+    return d ? `⚠️ Throws error: <em>${msg}</em> — signals an exceptional condition.` : `⚠️ Throw: ${msg}`;
   }
 
-  // Throw / revert
-  if (/^\s*(throw|revert|raise)\b/.test(trimmed)) {
-    const msg = trimmed.replace(/^\s*(throw|revert|raise)\s*/, '').trim();
-    return isDetailed
-      ? `⚠️ Throws error: ${msg} — intentionally signals an exceptional condition.`
-      : `⚠️ Throw: ${msg}`;
-  }
-
-  // Variable/constant declaration
-  if (/^\s*(const|let|var|val|let\s+mut)\s+\w+\s*=/.test(trimmed)) {
-    const match = trimmed.match(/^\s*(const|let|var|val|let\s+mut)\s+(\w+)\s*=\s*(.+)/);
-    if (match) {
-      const [_, kw, varName, value] = match;
-      const kwLabel = { const: 'Constant', let: 'Variable', var: 'Variable', val: 'Immutable', 'let mut': 'Mutable' }[kw];
-      const cleanValue = value.replace(/;?$/, '').trim();
-      return isDetailed
-        ? `📝 Declares <strong>${kwLabel}: ${varName}</strong> = ${cleanValue} — ${kw === 'const' || kw === 'val' ? 'a value that cannot be reassigned.' : 'a named memory location for storing data.'}`
-        : `📝 ${kwLabel}: ${varName} = ${cleanValue}`;
+  // Variable declaration
+  if (/^\s*(const|let|var|val|let\s+mut)\s+\w+\s*=/.test(t)) {
+    const m = t.match(/^\s*(const|let|var|val|let\s+mut)\s+(\w+)\s*=\s*(.+)/);
+    if (m) {
+      const [, kw, name, val] = m;
+      const label = { const: 'Constant', let: 'Variable', var: 'Variable', val: 'Immutable', 'let mut': 'Mutable' }[kw] || 'Variable';
+      const clean = val.replace(/;?$/, '').trim();
+      return d ? `📝 <strong>${label} ${name}</strong> = ${clean.substring(0, 40)}${clean.length > 40 ? '…' : ''} — ${kw === 'const' || kw === 'val' ? 'cannot be reassigned.' : 'mutable binding.'}` : `📝 ${label}: ${name}`;
     }
   }
 
-  // Arrow functions
-  if (/=>/.test(trimmed) && !trimmed.includes('=> {') && !trimmed.includes('=> (')) {
-    return isDetailed ? '🏹 Arrow function expression — concise syntax for defining functions with lexical `this` binding.' : '🏹 Arrow function';
+  // Await
+  if (/^\s*await\b/.test(t)) {
+    const expr = t.replace(/^\s*await\s*/, '').replace(/;?$/, '').trim();
+    return d ? `⏳ Awaits <strong>${expr}</strong> — pauses until this async operation resolves.` : `⏳ Await: ${expr}`;
   }
 
-  // Async/await
-  if (/^\s*await\b/.test(trimmed)) {
-    const expr = trimmed.replace(/^\s*await\s*/, '').replace(/;?$/, '').trim();
-    return isDetailed
-      ? `⏳ Await: pauses execution until <strong>${expr}</strong> resolves — enables non-blocking async code flow.`
-      : `⏳ Await: ${expr}`;
-  }
-
-  // Default: generic explanation
-  return isDetailed ? `⚙️ Executes statement: ${trimmed.substring(0, 50)}${trimmed.length > 50 ? '...' : ''}` : '';
+  // Default
+  return d ? `⚙️ Statement: <em>${t.substring(0, 60)}${t.length > 60 ? '…' : ''}</em>` : '';
 }
 
 // ============================================
@@ -682,16 +604,13 @@ function explainLine(line, lang, depth) {
 // ============================================
 
 function saveToHistory(type, item) {
-  chrome.storage.local.get([`gitty_${type}_history`], (result) => {
-    const key = `gitty_${type}_history`;
-    const history = result[key] || [];
-    history.unshift(item);
-    // Keep max 20 items
-    if (history.length > 20) history.pop();
-    
-    chrome.storage.local.set({ [key]: history }, () => {
-      STATE.history[type] = history;
-      if (DOM.currentTab === 'history') renderHistory();
+  const key = `gitty_${type}_history`;
+  chrome.storage.local.get([key], (result) => {
+    const arr = result[key] || [];
+    arr.unshift(item);
+    if (arr.length > 30) arr.pop();
+    chrome.storage.local.set({ [key]: arr }, () => {
+      STATE.history[type] = arr;
     });
   });
 }
@@ -705,116 +624,97 @@ function loadHistory() {
 }
 
 function renderHistory() {
-  const rHist = STATE.history.readme;
-  const cHist = STATE.history.code;
+  const rh = STATE.history.readme;
+  const ch = STATE.history.code;
 
-  // README history
-  if (rHist.length > 0) {
-    DOM.histReadme.innerHTML = rHist.map((item, i) => `
-      <div class="history-item" data-type="readme" data-index="${i}">
-        <div class="history-item-title">📝 ${item.project || 'Untitled README'}</div>
-        <div class="history-item-meta">${item.timestamp} · ${item.lang || ''}</div>
-      </div>
-    `).join('');
-    DOM.histReadme.classList.add('active');
-  } else {
-    DOM.histReadme.innerHTML = '';
-    DOM.histReadme.classList.remove('active');
-  }
+  DOM.histReadme.innerHTML = rh.length > 0
+    ? rh.map((item, i) => `
+        <div class="history-item" data-type="readme" data-index="${i}">
+          <span class="history-item-icon">📝</span>
+          <div class="history-item-content">
+            <div class="history-item-title">${item.project || 'Untitled README'}</div>
+            <div class="history-item-meta">${item.timestamp}${item.lang ? ` · ${item.lang}` : ''}</div>
+          </div>
+          <span class="history-item-arrow">›</span>
+        </div>
+      `).join('')
+    : '';
 
-  // Code history
-  if (cHist.length > 0) {
-    DOM.histCode.innerHTML = cHist.map((item, i) => `
-      <div class="history-item" data-type="code" data-index="${i}">
-        <div class="history-item-title">💡 ${item.lang || 'Code'} explanation</div>
-        <div class="history-item-meta">${item.timestamp} · ${item.preview}</div>
-      </div>
-    `).join('');
-    DOM.histCode.classList.add('active');
-  } else {
-    DOM.histCode.innerHTML = '';
-    DOM.histCode.classList.remove('active');
-  }
+  DOM.histCode.innerHTML = ch.length > 0
+    ? ch.map((item, i) => `
+        <div class="history-item" data-type="code" data-index="${i}">
+          <span class="history-item-icon">💡</span>
+          <div class="history-item-content">
+            <div class="history-item-title">${item.lang || 'Code'} explanation</div>
+            <div class="history-item-meta">${item.timestamp} · ${item.preview}</div>
+          </div>
+          <span class="history-item-arrow">›</span>
+        </div>
+      `).join('')
+    : '';
 
-  // Show empty state if both are empty
-  if (rHist.length === 0 && cHist.length === 0) {
-    DOM.histEmpty.style.display = 'block';
-  } else {
-    DOM.histEmpty.style.display = 'none';
-  }
+  const isEmpty = rh.length === 0 && ch.length === 0;
+  DOM.histEmpty.classList.toggle('visible', isEmpty);
 }
 
 // ============================================
-// FILE SAVE
+// UTILITIES
 // ============================================
 
-function saveAsFile(content, filename, extension) {
+function saveAsFile(content, name, ext) {
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${filename}.${extension}`;
+  a.download = `${name}.${ext}`;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
-function copyToClipboard(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('Copied to clipboard!');
-    }).catch(() => {
-      fallbackCopy(text);
-    });
+function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('Copied to clipboard!', 'success'))
+      .catch(() => fallbackCopy(text));
   } else {
     fallbackCopy(text);
   }
 }
 
 function fallbackCopy(text) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta);
+  ta.select();
   document.execCommand('copy');
-  document.body.removeChild(textarea);
-  showToast('Copied to clipboard!');
+  document.body.removeChild(ta);
+  showToast('Copied!', 'success');
 }
 
-// ============================================
-// TOAST NOTIFICATIONS
-// ============================================
+function showToast(message, type = '', duration = 2200) {
+  const t = DOM.toast;
+  t.textContent = message;
+  t.className = `toast${type ? ' ' + type : ''}`;
+  t.classList.remove('hidden');
 
-function showToast(message, duration = 2000) {
-  const existing = document.querySelector('.gitty-toast');
-  if (existing) existing.remove();
-
-  const toast = document.createElement('div');
-  toast.className = 'gitty-toast';
-  toast.textContent = message;
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--accent);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    z-index: 200;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    animation: toast-in 0.2s ease;
-  `;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.2s ease';
-    setTimeout(() => toast.remove(), 200);
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.2s ease';
+    setTimeout(() => {
+      t.classList.add('hidden');
+      t.style.opacity = '';
+      t.style.transition = '';
+    }, 200);
   }, duration);
+}
+
+function updateLineNumbers() {
+  const lines = DOM.codeInput.value.split('\n').length;
+  DOM.lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
 }
 
 // ============================================
@@ -822,64 +722,55 @@ function showToast(message, duration = 2000) {
 // ============================================
 
 function loadSettings() {
-  chrome.storage.local.get([
-    'gitty_syntax_theme', 'gitty_animation', 'gitty_auto_copy'
-  ], (result) => {
-    STATE.settings.syntaxTheme = result.gitty_syntax_theme || 'dracula';
-    STATE.settings.defaultAnimation = result.gitty_animation || 'typewriter';
-    STATE.settings.autoCopy = result.gitty_auto_copy || false;
+  chrome.storage.local.get(['gitty_syntax_theme', 'gitty_animation', 'gitty_auto_copy'], (res) => {
+    STATE.settings.syntaxTheme = res.gitty_syntax_theme || 'tokyo-night';
+    STATE.settings.defaultAnimation = res.gitty_animation || 'typewriter';
+    STATE.settings.autoCopy = res.gitty_auto_copy || false;
 
     DOM.syntaxTheme.value = STATE.settings.syntaxTheme;
     DOM.settingsSyntaxTheme.value = STATE.settings.syntaxTheme;
     DOM.settingsAnimation.value = STATE.settings.defaultAnimation;
     DOM.settingsAutoCopy.checked = STATE.settings.autoCopy;
 
-    // Set default animation radio
-    [...DOM.animRadios].forEach(r => {
-      r.checked = r.value === STATE.settings.defaultAnimation;
-    });
+    [...DOM.animRadios].forEach(r => { r.checked = r.value === STATE.settings.defaultAnimation; });
   });
 }
 
 function saveSettings() {
   const theme = DOM.settingsSyntaxTheme.value;
   const anim = DOM.settingsAnimation.value;
-  const autoCopy = DOM.settingsAutoCopy.checked;
+  const auto = DOM.settingsAutoCopy.checked;
 
   chrome.storage.local.set({
     gitty_syntax_theme: theme,
     gitty_animation: anim,
-    gitty_auto_copy: autoCopy
+    gitty_auto_copy: auto
   }, () => {
     STATE.settings.syntaxTheme = theme;
     STATE.settings.defaultAnimation = anim;
-    STATE.settings.autoCopy = autoCopy;
+    STATE.settings.autoCopy = auto;
 
     DOM.syntaxTheme.value = theme;
-    [...DOM.animRadios].forEach(r => {
-      r.checked = r.value === anim;
-    });
+    [...DOM.animRadios].forEach(r => { r.checked = r.value === anim; });
 
-    DOM.settingsPanel.classList.add('hidden');
-    showToast('Settings saved!');
+    DOM.settingsOverlay.classList.add('hidden');
+    showToast('Settings saved!', 'success');
   });
 }
 
 // ============================================
-// EVENT HANDLERS
+// EVENT WIRING
 // ============================================
 
-// Tab switching
-DOM.tabs.forEach(btn => {
+// Navigation
+DOM.navItems.forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
-    DOM.tabs.forEach(b => b.classList.remove('active'));
+    DOM.navItems.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    Object.keys(DOM.tabContents).forEach(key => {
-      DOM.tabContents[key].classList.toggle('active', key === tab);
+    Object.keys(DOM.tabPanes).forEach(k => {
+      DOM.tabPanes[k].classList.toggle('active', k === tab);
     });
-
     STATE.currentTab = tab;
     if (tab === 'history') renderHistory();
   });
@@ -888,9 +779,14 @@ DOM.tabs.forEach(btn => {
 // Generate README
 DOM.btnGenerate.addEventListener('click', () => {
   const { readme, animStyle } = generateReadme();
-  renderPreview(readme, animStyle);
 
-  // Save to history
+  const html = renderMarkdown(readme);
+  DOM.preview.innerHTML = html;
+  DOM.preview.className = `output-panel-body markdown-render anim-${animStyle}`;
+  DOM.previewContainer.classList.remove('hidden');
+  DOM.btnCopy.disabled = false;
+  DOM.btnSave.disabled = false;
+
   saveToHistory('readme', {
     project: DOM.projectName.value.trim() || 'Untitled',
     lang: DOM.projectLang.value.trim(),
@@ -898,30 +794,35 @@ DOM.btnGenerate.addEventListener('click', () => {
     content: readme
   });
 
-  if (STATE.settings.autoCopy) {
-    copyToClipboard(readme);
-  }
+  if (STATE.settings.autoCopy) copyText(readme);
+
+  showToast('README generated!', 'success');
+
+  setTimeout(() => {
+    DOM.previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
 });
 
 // Copy README
 DOM.btnCopy.addEventListener('click', () => {
-  if (STATE.lastReadme) copyToClipboard(STATE.lastReadme);
+  if (STATE.lastReadme) copyText(STATE.lastReadme);
 });
 
 // Save README
 DOM.btnSave.addEventListener('click', () => {
   const name = DOM.projectName.value.trim() || 'README';
   saveAsFile(STATE.lastReadme, name, 'md');
-  showToast('README saved!');
+  showToast('README saved!', 'success');
 });
 
 // Toggle preview animation
-let previewAnimPaused = false;
-DOM.togglePreviewAnim.addEventListener('click', () => {
-  previewAnimPaused = !previewAnimPaused;
-  const preview = DOM.preview;
-  preview.style.animationPlayState = previewAnimPaused ? 'paused' : 'running';
-  DOM.togglePreviewAnim.textContent = previewAnimPaused ? '⏸' : '▶';
+let animPaused = false;
+DOM.btnToggleAnim.addEventListener('click', () => {
+  animPaused = !animPaused;
+  DOM.preview.style.animationPlayState = animPaused ? 'paused' : 'running';
+  DOM.btnToggleAnim.innerHTML = animPaused
+    ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2" y="1.5" width="3" height="9" rx="1" fill="currentColor"/><rect x="7" y="1.5" width="3" height="9" rx="1" fill="currentColor"/></svg>'
+    : '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2L10 6L3 10V2Z" fill="currentColor"/></svg>';
 });
 
 // Explain code
@@ -931,21 +832,38 @@ DOM.btnExplain.addEventListener('click', explainCode);
 DOM.btnClearCode.addEventListener('click', () => {
   DOM.codeInput.value = '';
   DOM.explanationOutput.classList.add('hidden');
+  updateLineNumbers();
 });
 
 // Copy explanation
 DOM.btnCopyExplanation.addEventListener('click', () => {
-  const text = DOM.explanationBody.innerText;
-  copyToClipboard(text);
+  copyText(DOM.explanationBody.innerText);
 });
 
-// History tab switching
-DOM.histTabBtns.forEach(btn => {
+// Code editor: update line numbers, tab key
+DOM.codeInput.addEventListener('input', updateLineNumbers);
+
+DOM.codeInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = DOM.codeInput.selectionStart;
+    const end = DOM.codeInput.selectionEnd;
+    DOM.codeInput.value = DOM.codeInput.value.substring(0, start) + '  ' + DOM.codeInput.value.substring(end);
+    DOM.codeInput.selectionStart = DOM.codeInput.selectionEnd = start + 2;
+    updateLineNumbers();
+  }
+});
+
+// Sync scroll between code and line numbers
+DOM.codeInput.addEventListener('scroll', () => {
+  DOM.lineNumbers.style.transform = `translateY(-${DOM.codeInput.scrollTop}px)`;
+});
+
+// History tab switch
+DOM.histSegBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    if (btn.id === 'btn-clear-history') return;
-    DOM.histTabBtns.forEach(b => b.classList.remove('active'));
+    DOM.histSegBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
     const type = btn.dataset.hist;
     DOM.histReadme.classList.toggle('active', type === 'readme');
     DOM.histCode.classList.toggle('active', type === 'code');
@@ -954,41 +872,46 @@ DOM.histTabBtns.forEach(btn => {
 
 // Clear history
 DOM.btnClearHistory.addEventListener('click', () => {
-  chrome.storage.local.set({
-    gitty_readme_history: [],
-    gitty_code_history: []
-  }, () => {
+  chrome.storage.local.set({ gitty_readme_history: [], gitty_code_history: [] }, () => {
     STATE.history.readme = [];
     STATE.history.code = [];
     renderHistory();
-    showToast('History cleared!');
+    showToast('History cleared');
   });
 });
 
-// History item click to restore
+// History item restore
 document.addEventListener('click', (e) => {
   const item = e.target.closest('.history-item');
   if (!item) return;
 
   const type = item.dataset.type;
-  const index = parseInt(item.dataset.index);
+  const idx = parseInt(item.dataset.index);
 
   if (type === 'readme') {
-    const entry = STATE.history.readme[index];
-    if (entry && entry.content) {
+    const entry = STATE.history.readme[idx];
+    if (entry?.content) {
       STATE.lastReadme = entry.content;
-      renderPreview(entry.content, STATE.settings.defaultAnimation);
-      // Switch to README tab
-      [...DOM.tabs].find(b => b.dataset.tab === 'readme')?.click();
-      showToast('Restored from history');
+      const html = renderMarkdown(entry.content);
+      DOM.preview.innerHTML = html;
+      DOM.preview.className = `output-panel-body markdown-render anim-${STATE.settings.defaultAnimation}`;
+      DOM.previewContainer.classList.remove('hidden');
+      DOM.btnCopy.disabled = false;
+      DOM.btnSave.disabled = false;
+      DOM.navItems.forEach(b => b.classList.toggle('active', b.dataset.tab === 'readme'));
+      Object.keys(DOM.tabPanes).forEach(k => { DOM.tabPanes[k].classList.toggle('active', k === 'readme'); });
+      STATE.currentTab = 'readme';
+      showToast('Restored README');
     }
   } else if (type === 'code') {
-    const entry = STATE.history.code[index];
-    if (entry && entry.code) {
+    const entry = STATE.history.code[idx];
+    if (entry?.code) {
       DOM.codeInput.value = entry.code;
-      // Switch to explainer tab
-      [...DOM.tabs].find(b => b.dataset.tab === 'explainer')?.click();
-      showToast('Code restored from history');
+      updateLineNumbers();
+      DOM.navItems.forEach(b => b.classList.toggle('active', b.dataset.tab === 'explainer'));
+      Object.keys(DOM.tabPanes).forEach(k => { DOM.tabPanes[k].classList.toggle('active', k === 'explainer'); });
+      STATE.currentTab = 'explainer';
+      showToast('Code restored');
     }
   }
 });
@@ -998,53 +921,34 @@ DOM.btnSettings.addEventListener('click', () => {
   DOM.settingsSyntaxTheme.value = STATE.settings.syntaxTheme;
   DOM.settingsAnimation.value = STATE.settings.defaultAnimation;
   DOM.settingsAutoCopy.checked = STATE.settings.autoCopy;
-  DOM.settingsPanel.classList.remove('hidden');
+  DOM.settingsOverlay.classList.remove('hidden');
 });
 
 DOM.btnCloseSettings.addEventListener('click', () => {
-  DOM.settingsPanel.classList.add('hidden');
+  DOM.settingsOverlay.classList.add('hidden');
 });
 
-DOM.settingsPanel.addEventListener('click', (e) => {
-  if (e.target === DOM.settingsPanel) {
-    DOM.settingsPanel.classList.add('hidden');
-  }
+DOM.settingsOverlay.addEventListener('click', (e) => {
+  if (e.target === DOM.settingsOverlay) DOM.settingsOverlay.classList.add('hidden');
 });
 
 DOM.btnSaveSettings.addEventListener('click', saveSettings);
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-  // Ctrl+Enter to generate/explain
-  if (e.ctrlKey && e.key === 'Enter') {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
-    if (STATE.currentTab === 'readme') {
-      DOM.btnGenerate.click();
-    } else if (STATE.currentTab === 'explainer') {
-      DOM.btnExplain.click();
-    }
+    if (STATE.currentTab === 'readme') DOM.btnGenerate.click();
+    else if (STATE.currentTab === 'explainer') DOM.btnExplain.click();
   }
-  // Escape to close settings
-  if (e.key === 'Escape') {
-    DOM.settingsPanel.classList.add('hidden');
-  }
+  if (e.key === 'Escape') DOM.settingsOverlay.classList.add('hidden');
 });
 
 // ============================================
 // INIT
 // ============================================
-
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   loadHistory();
-  
-  // Add toast animation style
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes toast-in {
-      from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
+  updateLineNumbers();
 });
