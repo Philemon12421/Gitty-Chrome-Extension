@@ -1,0 +1,47 @@
+/* ============================================
+   Gitty — Global Theme Variables & Base Styles
+   ============================================ */
+
+:root {
+  /* Dark theme (default) */
+  --gitty-bg-primary: #0d1117;
+  --gitty-bg-secondary: #161b22;
+  --gitty-bg-tertiary: #1c2333;
+  --gitty-bg-hover: #21262d;
+  --gitty-border: #30363d;
+  --gitty-border-focus: #58a6ff;
+  --gitty-text-primary: #e6edf3;
+  --gitty-text-secondary: #8b949e;
+  --gitty-text-muted: #484f58;
+  --gitty-accent: #7c5cfc;
+  --gitty-accent-hover: #6b4de0;
+  --gitty-accent-dim: rgba(124, 92, 252, 0.15);
+  --gitty-green: #3fb950;
+  --gitty-orange: #d29922;
+  --gitty-red: #f85149;
+  --gitty-blue: #58a6ff;
+  --gitty-pink: #f778ba;
+  --gitty-radius: 8px;
+  --gitty-radius-lg: 12px;
+  --gitty-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --gitty-font-mono: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --gitty-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Smooth rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background: var(--gitty-accent-dim);
+  color: var(--gitty-text-primary);
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--gitty-accent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gitty</title>
+  <link rel="stylesheet" href="../styles/gitty-theme.css" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body class="gitty-dark">
+  <!-- HEADER -->
+  <header class="gitty-header">
+    <div class="gitty-logo">
+      <span class="logo-icon">◆</span>
+      <h1>Gitty</h1>
+      <span class="logo-badge">v1.0</span>
+    </div>
+    <nav class="gitty-nav">
+      <button class="nav-btn active" data-tab="readme" title="README Generator">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">README</span>
+      </button>
+      <button class="nav-btn" data-tab="explainer" title="Code Explainer">
+        <span class="nav-icon">💡</span>
+        <span class="nav-label">Explain</span>
+      </button>
+      <button class="nav-btn" data-tab="history" title="History">
+        <span class="nav-icon">🕐</span>
+        <span class="nav-label">History</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- TAB: README GENERATOR -->
+  <section id="tab-readme" class="tab-content active">
+    <div class="tab-header">
+      <h2>✨ README Generator</h2>
+      <p class="tab-subtitle">Generate animated, beautiful README markdown for your projects</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="project-name">Project Name</label>
+        <input type="text" id="project-name" placeholder="e.g. my-awesome-project" />
+      </div>
+      <div class="form-group">
+        <label for="project-tagline">Tagline</label>
+        <input type="text" id="project-tagline" placeholder="A short, punchy description" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="project-desc">Description</label>
+      <textarea id="project-desc" rows="3" placeholder="What does your project do? Who is it for? Why is it special?"></textarea>
+    </div>
+
+    <div class="form-grid grid-3">
+      <div class="form-group">
+        <label for="project-lang">Primary Language</label>
+        <input type="text" id="project-lang" placeholder="e.g. Python, Rust, TypeScript" />
+      </div>
+      <div class="form-group">
+        <label for="project-license">License</label>
+        <select id="project-license">
+          <option value="MIT">MIT</option>
+          <option value="Apache-2.0">Apache 2.0</option>
+          <option value="GPL-3.0">GPL 3.0</option>
+          <option value="BSD-3">BSD 3-Clause</option>
+          <option value="Unlicense">Unlicense</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="project-badge-style">Badge Style</label>
+        <select id="project-badge-style">
+          <option value="flat">Flat</option>
+          <option value="flat-square">Flat Square</option>
+          <option value="plastic">Plastic</option>
+          <option value="for-the-badge">For the Badge</option>
+          <option value="social">Social</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Features (one per line)</label>
+      <textarea id="project-features" rows="4" placeholder="🚀 Blazing fast performance&#10;🔒 Enterprise-grade security&#10;🎨 Beautiful UI out of the box"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Installation Steps (one per line)</label>
+      <textarea id="project-install" rows="3" placeholder="git clone https://github.com/user/repo.git&#10;cd repo && npm install&#10;npm run dev"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="readme-animation-style">Animation Style</label>
+      <div class="animation-picker">
+        <label class="anim-option">
+          <input type="radio" name="anim-style" value="typewriter" checked />
+          <span class="anim-card">
+            <span class="anim-preview tw">|</span>
+            <span>Typewriter</span>
+          </span>
+        </label>
+        <label class="anim-option">
+          <input type="radio" name="anim-style" value="fade" />
+          <span class="anim-card">
+            <span class="anim-preview fd">✦</span>
+            <span>Fade In</span>
+          </span>
+        </label>
+        <label class="anim-option">
+          <input type="radio" name="anim-style" value="slide" />
+          <span class="anim-card">
+            <span class="anim-preview sl">→</span>
+            <span>Slide</span>
+          </span>
+        </label>
+        <label class="anim-option">
+          <input type="radio" name="anim-style" value="glow" />
+          <span class="anim-card">
+            <span class="anim-preview gl">◈</span>
+            <span>Glow</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button id="btn-generate-readme" class="btn btn-primary">
+        <span>⚡</span> Generate README
+      </button>
+      <button id="btn-copy-readme" class="btn btn-secondary" disabled>
+        <span>📋</span> Copy
+      </button>
+      <button id="btn-save-readme" class="btn btn-secondary" disabled>
+        <span>💾</span> Save .md
+      </button>
+    </div>
+
+    <div id="readme-preview-container" class="preview-container hidden">
+      <div class="preview-header">
+        <span>🔍 Preview</span>
+        <button id="btn-toggle-preview-anim" class="btn-icon" title="Toggle animation">▶</button>
+      </div>
+      <div id="readme-preview" class="preview-content"></div>
+    </div>
+  </section>
+
+  <!-- TAB: CODE EXPLAINER -->
+  <section id="tab-explainer" class="tab-content">
+    <div class="tab-header">
+      <h2>🧠 Code Explainer</h2>
+      <p class="tab-subtitle">Paste any code snippet — get a clear, line-by-line explanation</p>
+    </div>
+
+    <div class="form-grid grid-3">
+      <div class="form-group">
+        <label for="code-language">Language</label>
+        <select id="code-language">
+          <option value="javascript">JavaScript</option>
+          <option value="typescript">TypeScript</option>
+          <option value="python">Python</option>
+          <option value="rust">Rust</option>
+          <option value="go">Go</option>
+          <option value="java">Java</option>
+          <option value="cpp">C++</option>
+          <option value="csharp">C#</option>
+          <option value="ruby">Ruby</option>
+          <option value="php">PHP</option>
+          <option value="swift">Swift</option>
+          <option value="kotlin">Kotlin</option>
+          <option value="sql">SQL</option>
+          <option value="bash">Bash</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="solidity">Solidity</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="explain-depth">Explanation Depth</label>
+        <select id="explain-depth">
+          <option value="simple">Simple (1-2 lines each)</option>
+          <option value="detailed" selected>Detailed (thorough)</option>
+          <option value="advanced">Advanced (low-level)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="syntax-theme">Syntax Theme</label>
+        <select id="syntax-theme">
+          <option value="dracula">🧛 Dracula</option>
+          <option value="nord">❄️ Nord</option>
+          <option value="monokai">🎨 Monokai</option>
+          <option value="github-dark">🌙 GitHub Dark</option>
+          <option value="one-dark">🖤 One Dark</option>
+          <option value="solarized-dark">☀️ Solarized Dark</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="code-input">Paste your code here</label>
+      <div class="code-input-wrapper">
+        <textarea id="code-input" class="code-textarea" spellcheck="false" placeholder="// Paste your code here...&#10;function hello() {&#10;  console.log('Hello, world!');&#10;}"></textarea>
+        <div id="code-highlight-backdrop" class="code-highlight-bg" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button id="btn-explain-code" class="btn btn-primary">
+        <span>🔍</span> Explain Code
+      </button>
+      <button id="btn-clear-code" class="btn btn-ghost">
+        <span>✕</span> Clear
+      </button>
+    </div>
+
+    <div id="explanation-output" class="explanation-container hidden">
+      <div class="explanation-header">
+        <span>📖 Explanation</span>
+        <div class="explanation-actions">
+          <button id="btn-copy-explanation" class="btn-icon" title="Copy explanation">📋</button>
+        </div>
+      </div>
+      <div id="explanation-body" class="explanation-body"></div>
+    </div>
+  </section>
+
+  <!-- TAB: HISTORY -->
+  <section id="tab-history" class="tab-content">
+    <div class="tab-header">
+      <h2>🕐 History</h2>
+      <p class="tab-subtitle">Your previous READMEs and code explanations</p>
+    </div>
+
+    <div class="history-tabs">
+      <button class="hist-tab-btn active" data-hist="readme">READMEs</button>
+      <button class="hist-tab-btn" data-hist="code">Explanations</button>
+      <button id="btn-clear-history" class="btn btn-ghost btn-sm">Clear All</button>
+    </div>
+
+    <div id="history-readme" class="history-list active"></div>
+    <div id="history-code" class="history-list"></div>
+    <div id="history-empty" class="history-empty">
+      <span class="empty-icon">📭</span>
+      <p>Nothing here yet. Generate a README or explain some code!</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="gitty-footer">
+    <span>Made with ◆ by Gitty</span>
+    <button id="btn-settings" class="btn-icon" title="Settings">⚙️</button>
+  </footer>
+
+  <!-- SETTINGS PANEL -->
+  <div id="settings-panel" class="settings-overlay hidden">
+    <div class="settings-modal">
+      <div class="settings-header">
+        <h3>⚙️ Settings</h3>
+        <button id="btn-close-settings" class="btn-icon">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="form-group">
+          <label for="settings-syntax-theme">Default Syntax Theme</label>
+          <select id="settings-syntax-theme">
+            <option value="dracula">🧛 Dracula</option>
+            <option value="nord">❄️ Nord</option>
+            <option value="monokai">🎨 Monokai</option>
+            <option value="github-dark">🌙 GitHub Dark</option>
+            <option value="one-dark">🖤 One Dark</option>
+            <option value="solarized-dark">☀️ Solarized Dark</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="settings-animation">Default Animation</label>
+          <select id="settings-animation">
+            <option value="typewriter">Typewriter</option>
+            <option value="fade">Fade In</option>
+            <option value="slide">Slide</option>
+            <option value="glow">Glow</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="settings-auto-copy">Auto-copy to clipboard</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="settings-auto-copy" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="settings-footer">
+        <button id="btn-save-settings" class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

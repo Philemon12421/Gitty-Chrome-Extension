@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Gitty — Animated README & Code Explainer",
+  "version": "1.0.0",
+  "description": "Generate beautiful animated READMEs for your projects and get AI-powered code explanations with elegant syntax highlighting.",
+  "permissions": ["storage", "clipboardWrite", "activeTab"],
+  "host_permissions": ["https://api.github.com/*"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Gitty"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
