@@ -6,355 +6,274 @@
   <title>Gitty</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-mark">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M11 2L13.5 7.5L19.5 8.5L15 13L16.5 19L11 16L5.5 19L7 13L2.5 8.5L8.5 7.5L11 2Z" fill="url(#logoGrad)" stroke="none"/>
-          <defs>
-            <linearGradient id="logoGrad" x1="2.5" y1="2" x2="19.5" y2="19" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#7EE8FA"/>
-              <stop offset="100%" stop-color="#ECC30B"/>
-            </linearGradient>
-          </defs>
-        </svg>
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <img src="../icons/icon128.png" class="brand-icon" alt="Gitty"/>
+      <div class="brand-text">
+        <span class="brand-name">gitty</span>
+        <span class="brand-tag">✦ Explain code on GitHub</span>
       </div>
-      <span class="logo-text">gitty</span>
     </div>
+    <button id="btn-settings" class="topbar-settings" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 1.5V3M8 13V14.5M1.5 8H3M13 8H14.5M3.05 3.05L4.1 4.1M11.9 11.9L12.95 12.95M3.05 12.95L4.1 11.9M11.9 4.1L12.95 3.05" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </header>
 
-    <nav class="sidebar-nav">
-      <button class="nav-item active" data-tab="readme">
-        <span class="nav-icon">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="2" y="2" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M5 6H11M5 9H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="nav-label">README</span>
-      </button>
+  <!-- NAV TABS -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="readme">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1.5" y="1.5" width="11" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M4 5H10M4 7.5H8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      README
+    </button>
+    <button class="tab-btn" data-tab="explainer">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M5.5 5.5C5.5 4.7 6.2 4 7 4C7.8 4 8.5 4.7 8.5 5.5C8.5 6.3 7.5 6.7 7 7.2V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <circle cx="7" cy="9.5" r="0.5" fill="currentColor"/>
+      </svg>
+      Explain Code
+    </button>
+    <button class="tab-btn" data-tab="history">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M7 4V7.5L9 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      History
+    </button>
+  </nav>
 
-      <button class="nav-item" data-tab="explainer">
-        <span class="nav-icon">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2 4H14M2 8H10M2 12H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="13" cy="11" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-            <path d="M15 13L16 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <span class="nav-label">Explain</span>
-      </button>
+  <!-- CONTENT AREA -->
+  <div class="content">
 
-      <button class="nav-item" data-tab="history">
-        <span class="nav-icon">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M8 5V8.5L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="nav-label">History</span>
-      </button>
-    </nav>
+    <!-- README TAB -->
+    <section id="tab-readme" class="pane active">
 
-    <div class="sidebar-footer">
-      <button id="btn-settings" class="sidebar-settings" title="Settings">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="7.5" cy="7.5" r="2" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M7.5 1V2M7.5 13V14M1 7.5H2M13 7.5H14M2.93 2.93L3.64 3.64M11.36 11.36L12.07 12.07M2.93 12.07L3.64 11.36M11.36 3.64L12.07 2.93" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <span class="sidebar-version">v2.0</span>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-
-    <!-- TAB: README GENERATOR -->
-    <section id="tab-readme" class="tab-pane active">
-      <div class="pane-header">
-        <div class="pane-title-row">
-          <h2>README Generator</h2>
-          <div class="header-badge">AI-Powered</div>
+      <div class="form-row two">
+        <div class="field">
+          <label>Project Name</label>
+          <input type="text" id="project-name" placeholder="my-awesome-project"/>
         </div>
-        <p class="pane-subtitle">Craft stunning, badge-rich README files in seconds</p>
+        <div class="field">
+          <label>Tagline</label>
+          <input type="text" id="project-tagline" placeholder="Short punchy description"/>
+        </div>
       </div>
 
-      <div class="scroll-area">
-        <div class="form-row two-col">
-          <div class="field">
-            <label>Project Name</label>
-            <input type="text" id="project-name" placeholder="my-awesome-project" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label>Tagline</label>
-            <input type="text" id="project-tagline" placeholder="Short, punchy description"/>
-          </div>
-        </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="project-desc" rows="3" placeholder="What does your project do? Who is it for?"></textarea>
+      </div>
 
+      <div class="form-row three">
         <div class="field">
-          <label>Description</label>
-          <textarea id="project-desc" rows="3" placeholder="What does your project do? Who is it for? Why is it special?"></textarea>
+          <label>Language</label>
+          <input type="text" id="project-lang" placeholder="Python, TS…"/>
         </div>
-
-        <div class="form-row three-col">
-          <div class="field">
-            <label>Language</label>
-            <input type="text" id="project-lang" placeholder="Python, Rust, TS…"/>
-          </div>
-          <div class="field">
-            <label>License</label>
-            <select id="project-license">
-              <option value="MIT">MIT</option>
-              <option value="Apache-2.0">Apache 2.0</option>
-              <option value="GPL-3.0">GPL 3.0</option>
-              <option value="BSD-3">BSD 3-Clause</option>
-              <option value="Unlicense">Unlicense</option>
-              <option value="custom">Custom</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Badge Style</label>
-            <select id="project-badge-style">
-              <option value="flat">Flat</option>
-              <option value="flat-square">Flat Square</option>
-              <option value="plastic">Plastic</option>
-              <option value="for-the-badge">For the Badge</option>
-              <option value="social">Social</option>
-            </select>
-          </div>
-        </div>
-
         <div class="field">
-          <label>Features <span class="label-hint">— one per line</span></label>
-          <textarea id="project-features" rows="4" placeholder="🚀 Blazing fast performance&#10;🔒 Enterprise-grade security&#10;🎨 Beautiful UI out of the box&#10;⚡ Zero config setup"></textarea>
+          <label>License</label>
+          <select id="project-license">
+            <option value="MIT">MIT</option>
+            <option value="Apache-2.0">Apache 2.0</option>
+            <option value="GPL-3.0">GPL 3.0</option>
+            <option value="BSD-3">BSD 3-Clause</option>
+            <option value="Unlicense">Unlicense</option>
+            <option value="custom">Custom</option>
+          </select>
         </div>
-
         <div class="field">
-          <label>Installation Steps <span class="label-hint">— one per line</span></label>
-          <textarea id="project-install" rows="3" placeholder="git clone https://github.com/user/repo.git&#10;cd repo && npm install&#10;npm run dev"></textarea>
+          <label>Badges</label>
+          <select id="project-badge-style">
+            <option value="flat">Flat</option>
+            <option value="flat-square">Flat Square</option>
+            <option value="for-the-badge">For the Badge</option>
+            <option value="plastic">Plastic</option>
+          </select>
         </div>
+      </div>
 
-        <div class="field">
-          <label>GitHub Username <span class="label-hint">— optional</span></label>
-          <input type="text" id="project-github" placeholder="your-username"/>
+      <div class="field">
+        <label>Features <span class="hint">— one per line</span></label>
+        <textarea id="project-features" rows="4" placeholder="🚀 Blazing fast&#10;🔒 Secure by design&#10;🎨 Beautiful UI&#10;⚡ Zero config"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Install Steps <span class="hint">— one per line</span></label>
+        <textarea id="project-install" rows="3" placeholder="git clone https://github.com/user/repo&#10;cd repo && npm install&#10;npm run dev"></textarea>
+      </div>
+
+      <div class="field">
+        <label>GitHub Username <span class="hint">— optional</span></label>
+        <input type="text" id="project-github" placeholder="your-username"/>
+      </div>
+
+      <div class="field">
+        <label>Animation Style</label>
+        <div class="anim-grid">
+          <label class="anim-opt"><input type="radio" name="anim" value="typewriter" checked/><span class="anim-card"><em class="ademo tw">|</em>Typewriter</span></label>
+          <label class="anim-opt"><input type="radio" name="anim" value="fade"/><span class="anim-card"><em class="ademo fd">✦</em>Fade In</span></label>
+          <label class="anim-opt"><input type="radio" name="anim" value="slide"/><span class="anim-card"><em class="ademo sl">→</em>Slide</span></label>
+          <label class="anim-opt"><input type="radio" name="anim" value="glow"/><span class="anim-card"><em class="ademo gl">◈</em>Glow</span></label>
         </div>
+      </div>
 
-        <div class="field">
-          <label>Animation Style</label>
-          <div class="anim-grid">
-            <label class="anim-tile">
-              <input type="radio" name="anim-style" value="typewriter" checked/>
-              <span class="anim-tile-inner">
-                <span class="anim-demo tw-demo">|</span>
-                <span>Typewriter</span>
-              </span>
-            </label>
-            <label class="anim-tile">
-              <input type="radio" name="anim-style" value="fade"/>
-              <span class="anim-tile-inner">
-                <span class="anim-demo fd-demo">✦</span>
-                <span>Fade In</span>
-              </span>
-            </label>
-            <label class="anim-tile">
-              <input type="radio" name="anim-style" value="slide"/>
-              <span class="anim-tile-inner">
-                <span class="anim-demo sl-demo">→</span>
-                <span>Slide</span>
-              </span>
-            </label>
-            <label class="anim-tile">
-              <input type="radio" name="anim-style" value="glow"/>
-              <span class="anim-tile-inner">
-                <span class="anim-demo gl-demo">◈</span>
-                <span>Glow</span>
-              </span>
-            </label>
-          </div>
-        </div>
+      <div class="actions">
+        <button id="btn-generate-readme" class="btn-primary">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L8 5H12L8.5 7.5L10 11.5L6.5 9L3 11.5L4.5 7.5L1 5H5L6.5 1Z" fill="currentColor"/></svg>
+          Generate README
+        </button>
+        <button id="btn-copy-readme" class="btn-secondary" disabled>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="3.5" y="3.5" width="8" height="8.5" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8.5V2.5A1 1 0 012.5 1.5H8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Copy
+        </button>
+        <button id="btn-save-readme" class="btn-secondary" disabled>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 9.5V11.5H11V9.5M6.5 1.5V8.5M4 6L6.5 8.5L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Save .md
+        </button>
+      </div>
 
-        <div class="action-bar">
-          <button id="btn-generate-readme" class="btn-primary">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L8.5 5H13L9.5 7.5L11 12L7 9.5L3 12L4.5 7.5L1 5H5.5L7 1Z" fill="currentColor"/></svg>
-            Generate README
-          </button>
-          <button id="btn-copy-readme" class="btn-outline" disabled>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2.5A1 1 0 013 1.5H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Copy
-          </button>
-          <button id="btn-save-readme" class="btn-outline" disabled>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10V12H12V10M7 2V9M4.5 6.5L7 9L9.5 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Save .md
+      <div id="readme-preview-wrap" class="output-box hidden">
+        <div class="output-box-header">
+          <span>Preview</span>
+          <button id="btn-toggle-anim" class="icon-btn" title="Pause animation">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 1.5L9.5 5.5L2 9.5V1.5Z" fill="currentColor"/></svg>
           </button>
         </div>
-
-        <div id="readme-preview-container" class="output-panel hidden">
-          <div class="output-panel-header">
-            <span class="output-panel-title">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M4 6H8M6 4V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              Preview
-            </span>
-            <div class="output-panel-actions">
-              <button id="btn-toggle-preview-anim" class="icon-btn" title="Toggle animation">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2L10 6L3 10V2Z" fill="currentColor"/></svg>
-              </button>
-            </div>
-          </div>
-          <div id="readme-preview" class="output-panel-body markdown-render"></div>
-        </div>
+        <div id="readme-preview" class="output-box-body md-render"></div>
       </div>
     </section>
 
-    <!-- TAB: CODE EXPLAINER -->
-    <section id="tab-explainer" class="tab-pane">
-      <div class="pane-header">
-        <div class="pane-title-row">
-          <h2>Code Explainer</h2>
-          <div class="header-badge">Smart</div>
+    <!-- EXPLAINER TAB -->
+    <section id="tab-explainer" class="pane">
+
+      <div class="form-row three">
+        <div class="field">
+          <label>Language</label>
+          <select id="code-language">
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="python">Python</option>
+            <option value="rust">Rust</option>
+            <option value="go">Go</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="csharp">C#</option>
+            <option value="ruby">Ruby</option>
+            <option value="php">PHP</option>
+            <option value="swift">Swift</option>
+            <option value="kotlin">Kotlin</option>
+            <option value="sql">SQL</option>
+            <option value="bash">Bash</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="solidity">Solidity</option>
+          </select>
         </div>
-        <p class="pane-subtitle">Paste any snippet — get a clear, line-by-line breakdown</p>
+        <div class="field">
+          <label>Depth</label>
+          <select id="explain-depth">
+            <option value="simple">Simple</option>
+            <option value="detailed" selected>Detailed</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Theme</label>
+          <select id="syntax-theme">
+            <option value="dracula">Dracula</option>
+            <option value="tokyo-night">Tokyo Night</option>
+            <option value="monokai">Monokai</option>
+            <option value="nord">Nord</option>
+            <option value="github-dark">GitHub Dark</option>
+            <option value="one-dark">One Dark</option>
+          </select>
+        </div>
       </div>
 
-      <div class="scroll-area">
-        <div class="form-row three-col">
-          <div class="field">
-            <label>Language</label>
-            <select id="code-language">
-              <option value="javascript">JavaScript</option>
-              <option value="typescript">TypeScript</option>
-              <option value="python">Python</option>
-              <option value="rust">Rust</option>
-              <option value="go">Go</option>
-              <option value="java">Java</option>
-              <option value="cpp">C++</option>
-              <option value="csharp">C#</option>
-              <option value="ruby">Ruby</option>
-              <option value="php">PHP</option>
-              <option value="swift">Swift</option>
-              <option value="kotlin">Kotlin</option>
-              <option value="sql">SQL</option>
-              <option value="bash">Bash</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="solidity">Solidity</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Depth</label>
-            <select id="explain-depth">
-              <option value="simple">Simple</option>
-              <option value="detailed" selected>Detailed</option>
-              <option value="advanced">Advanced</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Theme</label>
-            <select id="syntax-theme">
-              <option value="tokyo-night">Tokyo Night</option>
-              <option value="dracula">Dracula</option>
-              <option value="nord">Nord</option>
-              <option value="monokai">Monokai</option>
-              <option value="github-dark">GitHub Dark</option>
-              <option value="one-dark">One Dark</option>
-            </select>
-          </div>
+      <div class="field">
+        <label>Paste Your Code</label>
+        <div class="code-wrap">
+          <div id="line-nums" class="line-nums" aria-hidden="true">1</div>
+          <textarea id="code-input" class="code-area" spellcheck="false" placeholder="// paste code here…&#10;function hello() {&#10;  return 'world';&#10;}"></textarea>
         </div>
+      </div>
 
-        <div class="field">
-          <label>Paste Code</label>
-          <div class="code-editor-wrap">
-            <div class="code-line-numbers" id="line-numbers" aria-hidden="true">1</div>
-            <textarea id="code-input" class="code-editor" spellcheck="false" placeholder="// paste your code here…"></textarea>
-          </div>
-        </div>
+      <div class="actions">
+        <button id="btn-explain-code" class="btn-primary">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5C4.5 4 5.3 3.2 6.5 3.2C7.7 3.2 8.5 4 8.5 5C8.5 6 7.5 6.5 6.5 7V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9.8" r="0.55" fill="currentColor"/></svg>
+          Explain Code
+        </button>
+        <button id="btn-clear-code" class="btn-ghost">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 1.5L11.5 11.5M11.5 1.5L1.5 11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Clear
+        </button>
+      </div>
 
-        <div class="action-bar">
-          <button id="btn-explain-code" class="btn-primary">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5.5C5 4.4 5.9 3.5 7 3.5C8.1 3.5 9 4.4 9 5.5C9 6.6 8 7 7 7.5V8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="10.5" r="0.6" fill="currentColor"/></svg>
-            Explain Code
-          </button>
-          <button id="btn-clear-code" class="btn-ghost">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Clear
+      <div id="explanation-output" class="output-box hidden">
+        <div class="output-box-header">
+          <span>Explanation</span>
+          <button id="btn-copy-explanation" class="icon-btn" title="Copy">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="3" y="3" width="7" height="7.5" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M1 7V2A1 1 0 012 1H7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           </button>
         </div>
-
-        <div id="explanation-output" class="output-panel hidden">
-          <div class="output-panel-header">
-            <span class="output-panel-title">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9L6 2L10 9H2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-              Explanation
-            </span>
-            <div class="output-panel-actions">
-              <button id="btn-copy-explanation" class="icon-btn" title="Copy">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7.5" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 7.5V2A1 1 0 012.5 1H8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-          <div id="explanation-body" class="output-panel-body explanation-render"></div>
-        </div>
+        <div id="explanation-body" class="output-box-body exp-render"></div>
       </div>
     </section>
 
-    <!-- TAB: HISTORY -->
-    <section id="tab-history" class="tab-pane">
-      <div class="pane-header">
-        <div class="pane-title-row">
-          <h2>History</h2>
-          <button id="btn-clear-history" class="btn-danger-sm">Clear All</button>
-        </div>
-        <p class="pane-subtitle">Your recent READMEs and code explanations</p>
-      </div>
-
-      <div class="scroll-area">
+    <!-- HISTORY TAB -->
+    <section id="tab-history" class="pane">
+      <div class="hist-controls">
         <div class="hist-seg">
-          <button class="hist-seg-btn active" data-hist="readme">READMEs</button>
-          <button class="hist-seg-btn" data-hist="code">Explanations</button>
+          <button class="hist-btn active" data-hist="readme">READMEs</button>
+          <button class="hist-btn" data-hist="code">Explanations</button>
         </div>
+        <button id="btn-clear-history" class="btn-danger">Clear All</button>
+      </div>
 
-        <div id="history-readme" class="history-list active"></div>
-        <div id="history-code" class="history-list"></div>
+      <div id="history-readme" class="hist-list active"></div>
+      <div id="history-code" class="hist-list"></div>
 
-        <div id="history-empty" class="empty-state">
-          <div class="empty-icon">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-              <path d="M14 20H26M20 14V26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-            </svg>
-          </div>
-          <p>Nothing here yet.</p>
-          <span>Generate a README or explain some code to get started.</span>
+      <div id="history-empty" class="empty-state">
+        <div class="empty-cat">
+          <img src="../icons/icon128.png" alt="Gitty" style="width:56px;height:56px;object-fit:contain;opacity:0.35"/>
         </div>
+        <p>Nothing here yet.</p>
+        <span>Generate a README or explain some code!</span>
       </div>
     </section>
 
-  </main>
+  </div><!-- /content -->
 
   <!-- SETTINGS MODAL -->
-  <div id="settings-overlay" class="modal-overlay hidden">
+  <div id="settings-overlay" class="overlay hidden">
     <div class="modal">
-      <div class="modal-header">
+      <div class="modal-head">
         <h3>Settings</h3>
         <button id="btn-close-settings" class="icon-btn">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 1.5L11.5 11.5M11.5 1.5L1.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        <div class="settings-section">
+        <div class="settings-group">
           <h4>Appearance</h4>
           <div class="field">
             <label>Default Syntax Theme</label>
             <select id="settings-syntax-theme">
-              <option value="tokyo-night">Tokyo Night</option>
               <option value="dracula">Dracula</option>
-              <option value="nord">Nord</option>
+              <option value="tokyo-night">Tokyo Night</option>
               <option value="monokai">Monokai</option>
+              <option value="nord">Nord</option>
               <option value="github-dark">GitHub Dark</option>
               <option value="one-dark">One Dark</option>
             </select>
@@ -369,18 +288,18 @@
             </select>
           </div>
         </div>
-        <div class="settings-section">
+        <div class="settings-group">
           <h4>Behavior</h4>
           <div class="field setting-row">
-            <label>Auto-copy to clipboard after generate</label>
+            <label>Auto-copy after generate</label>
             <label class="toggle">
               <input type="checkbox" id="settings-auto-copy"/>
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
             </label>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-foot">
         <button id="btn-save-settings" class="btn-primary">Save Settings</button>
       </div>
     </div>

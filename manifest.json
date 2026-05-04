@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Gitty — README & Code Explainer",
   "version": "2.0.0",
-  "description": "Generate stunning animated READMEs and get AI-powered code explanations with beautiful syntax highlighting. The ultimate dev companion.",
+  "description": "Generate stunning README files and get line-by-line code explanations. The ultimate dev companion for GitHub.",
   "permissions": ["storage", "clipboardWrite", "activeTab"],
   "host_permissions": ["https://api.github.com/*"],
   "action": {
