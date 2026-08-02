@@ -1,15 +1,13 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f0d1a,50:7c3aed,100:d175f5&height=200&section=header&text=Gitty&fontSize=70&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Animated%20READMEs%20%2B%20AI-style%20code%20explanations&descAlignY=58&descSize=18" width="100%"/>
+# Gitty
 
-<img src="https://readme-typing-svg.demolab.com?font=Outfit&size=22&duration=3000&pause=1000&color=9B79FF&center=true&vCenter=true&width=600&lines=Generate+beautiful+animated+READMEs;Explain+code+line-by-line+in+17%2B+languages;Built+for+GitHub%2C+built+for+speed" alt="Typing SVG" />
+**Animated READMEs and code explanations, generated from your Chrome toolbar.**
 
-<br/>
-
-![Manifest](https://img.shields.io/badge/manifest-v3-9b79ff?style=for-the-badge&logo=googlechrome&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-vanilla-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![License](https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/Philemon12421/Gitty-Chrome-Extension?style=for-the-badge&color=d175f5)
+![Manifest](https://img.shields.io/badge/manifest-v3-7c3aed?style=flat-square)
+![JavaScript](https://img.shields.io/badge/javascript-vanilla-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)
+![Stars](https://img.shields.io/github/stars/Philemon12421/Gitty-Chrome-Extension?style=flat-square&color=7c3aed)
 
 </div>
 
