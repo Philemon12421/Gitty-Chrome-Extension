@@ -1,8 +1,8 @@
 // Gitty v2 — Background Service Worker
-
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     chrome.storage.local.set({
+      gitty_theme_mode: 'dark',
       gitty_syntax_theme: 'tokyo-night',
       gitty_animation: 'typewriter',
       gitty_auto_copy: false,
@@ -13,10 +13,11 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
   if (details.reason === 'update') {
     // Migrate old settings if needed
-    chrome.storage.local.get(['gitty_syntax_theme'], (res) => {
-      if (!res.gitty_syntax_theme) {
-        chrome.storage.local.set({ gitty_syntax_theme: 'tokyo-night' });
-      }
+    chrome.storage.local.get(['gitty_syntax_theme', 'gitty_theme_mode'], (res) => {
+      const patch = {};
+      if (!res.gitty_syntax_theme) patch.gitty_syntax_theme = 'tokyo-night';
+      if (!res.gitty_theme_mode) patch.gitty_theme_mode = 'dark';
+      if (Object.keys(patch).length) chrome.storage.local.set(patch);
     });
   }
 });
