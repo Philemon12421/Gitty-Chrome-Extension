@@ -5,7 +5,7 @@
 const STATE = {
   tab: 'readme',
   lastReadme: '',
-  settings: { syntaxTheme: 'dracula', defaultAnimation: 'typewriter', autoCopy: false },
+  settings: { themeMode: 'dark', syntaxTheme: 'dracula', defaultAnimation: 'typewriter', autoCopy: false },
   history: { readme: [], code: [] }
 };
 
@@ -16,7 +16,12 @@ const DOM = {
   tabBtns: $$('.tab-btn'),
   panes: { readme: $('#tab-readme'), explainer: $('#tab-explainer'), history: $('#tab-history') },
 
+  // Theme
+  btnThemeToggle:  $('#btn-theme-toggle'),
+
   // README
+  githubImportUrl: $('#github-import-url'),
+  btnGithubImport: $('#btn-github-import'),
   projectName:     $('#project-name'),
   projectTagline:  $('#project-tagline'),
   projectDesc:     $('#project-desc'),
@@ -56,7 +61,8 @@ const DOM = {
   // Settings
   overlay:         $('#settings-overlay'),
   btnSettings:     $('#btn-settings'),
-  btnCloseSettings:('#btn-close-settings'),
+  btnCloseSettings:$('#btn-close-settings'),
+  settingsThemeMode:$('#settings-theme-mode'),
   settingsTheme:   $('#settings-syntax-theme'),
   settingsAnim:    $('#settings-animation'),
   settingsAuto:    $('#settings-auto-copy'),
@@ -65,11 +71,8 @@ const DOM = {
   toast:           $('#toast'),
 };
 
-// fix btn-close-settings typo above
-const btnCloseSettings = $('#btn-close-settings');
-
 // ============================================
-// THEMES
+// THEMES (syntax highlighting palettes)
 // ============================================
 const THEMES = {
   dracula:      { kw:'#ff79c6', str:'#f1fa8c', num:'#bd93f9', cmt:'#6272a4', fn:'#50fa7b', ty:'#8be9fd', tx:'#f8f8f2' },
@@ -115,6 +118,99 @@ function hlCode(code, lang, theme = 'dracula') {
   out = out.replace(/\b([A-Z][a-z]\w*)\b/g, m => `<span style="color:${t.ty}">${m}</span>`);
 
   return `<span style="color:${t.tx}">${out}</span>`;
+}
+
+// ============================================
+// THEME MODE (light / dark)
+// ============================================
+
+function applyThemeMode(mode) {
+  document.documentElement.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
+}
+
+function loadThemeMode() {
+  chrome.storage.local.get(['gitty_theme_mode'], res => {
+    STATE.settings.themeMode = res.gitty_theme_mode || 'dark';
+    applyThemeMode(STATE.settings.themeMode);
+    DOM.settingsThemeMode.value = STATE.settings.themeMode;
+  });
+}
+
+function toggleThemeMode() {
+  const next = STATE.settings.themeMode === 'light' ? 'dark' : 'light';
+  STATE.settings.themeMode = next;
+  applyThemeMode(next);
+  DOM.settingsThemeMode.value = next;
+  chrome.storage.local.set({ gitty_theme_mode: next });
+}
+
+// ============================================
+// GITHUB API IMPORT
+// ============================================
+
+function parseGithubUrl(raw) {
+  const s = raw.trim();
+  // supports full URLs and bare "owner/repo"
+  const urlMatch = s.match(/github\.com\/([^\/\s]+)\/([^\/\s#?]+)/i);
+  if (urlMatch) return { owner: urlMatch[1], repo: urlMatch[2].replace(/\.git$/,'') };
+  const bareMatch = s.match(/^([\w.-]+)\/([\w.-]+)$/);
+  if (bareMatch) return { owner: bareMatch[1], repo: bareMatch[2].replace(/\.git$/,'') };
+  return null;
+}
+
+const SPDX_TO_SELECT = {
+  'MIT': 'MIT',
+  'Apache-2.0': 'Apache-2.0',
+  'GPL-3.0': 'GPL-3.0',
+  'GPL-3.0-only': 'GPL-3.0',
+  'GPL-3.0-or-later': 'GPL-3.0',
+  'BSD-3-Clause': 'BSD-3',
+  'Unlicense': 'Unlicense',
+};
+
+async function importFromGithub() {
+  const parsed = parseGithubUrl(DOM.githubImportUrl.value);
+  if (!parsed) {
+    showToast('Enter a valid GitHub URL (owner/repo)', 'err');
+    return;
+  }
+
+  const btn = DOM.btnGithubImport;
+  const originalHTML = btn.innerHTML;
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="spin">⟳</span> Fetching…';
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`, {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    });
+
+    if (res.status === 404) throw new Error('Repository not found');
+    if (res.status === 403) throw new Error('Rate limited by GitHub — try again shortly');
+    if (!res.ok) throw new Error(`GitHub API error (${res.status})`);
+
+    const data = await res.json();
+
+    DOM.projectName.value = data.name || parsed.repo;
+    DOM.projectTagline.value = data.description || DOM.projectTagline.value;
+    if (data.language) DOM.projectLang.value = data.language;
+    DOM.projectGithub.value = data.owner?.login || parsed.owner;
+
+    if (data.license?.spdx_id && SPDX_TO_SELECT[data.license.spdx_id]) {
+      DOM.projectLicense.value = SPDX_TO_SELECT[data.license.spdx_id];
+    }
+
+    if (!DOM.projectDesc.value.trim() && data.description) {
+      DOM.projectDesc.value = data.description;
+    }
+
+    showToast(`Imported ${data.full_name}${data.stargazers_count ? ' · ★' + data.stargazers_count : ''}`, 'ok');
+  } catch (err) {
+    showToast(err.message || 'Import failed', 'err');
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = originalHTML;
+  }
 }
 
 // ============================================
@@ -541,13 +637,16 @@ function loadSettings() {
 }
 
 function saveSettings() {
+  const themeMode = DOM.settingsThemeMode.value;
   const theme = DOM.settingsTheme.value;
   const anim  = DOM.settingsAnim.value;
   const auto  = DOM.settingsAuto.checked;
-  chrome.storage.local.set({ gitty_syntax_theme:theme, gitty_animation:anim, gitty_auto_copy:auto }, () => {
+  chrome.storage.local.set({ gitty_theme_mode:themeMode, gitty_syntax_theme:theme, gitty_animation:anim, gitty_auto_copy:auto }, () => {
+    STATE.settings.themeMode = themeMode;
     STATE.settings.syntaxTheme = theme;
     STATE.settings.defaultAnimation = anim;
     STATE.settings.autoCopy = auto;
+    applyThemeMode(themeMode);
     DOM.syntaxTheme.value = theme;
     [...DOM.animRadios].forEach(r => { r.checked = r.value === anim; });
     DOM.overlay.classList.add('hidden');
@@ -559,6 +658,9 @@ function saveSettings() {
 // EVENT WIRING
 // ============================================
 
+// Theme toggle
+DOM.btnThemeToggle.addEventListener('click', toggleThemeMode);
+
 // Tab nav
 DOM.tabBtns.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -569,6 +671,12 @@ DOM.tabBtns.forEach(btn => {
     STATE.tab = tab;
     if (tab === 'history') renderHistory();
   });
+});
+
+// GitHub import
+DOM.btnGithubImport.addEventListener('click', importFromGithub);
+DOM.githubImportUrl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); importFromGithub(); }
 });
 
 // Generate README
@@ -691,13 +799,14 @@ document.addEventListener('click', e => {
 
 // Settings
 DOM.btnSettings.addEventListener('click', () => {
+  DOM.settingsThemeMode.value = STATE.settings.themeMode;
   DOM.settingsTheme.value = STATE.settings.syntaxTheme;
   DOM.settingsAnim.value  = STATE.settings.defaultAnimation;
   DOM.settingsAuto.checked= STATE.settings.autoCopy;
   DOM.overlay.classList.remove('hidden');
 });
 
-btnCloseSettings.addEventListener('click', () => DOM.overlay.classList.add('hidden'));
+DOM.btnCloseSettings.addEventListener('click', () => DOM.overlay.classList.add('hidden'));
 
 DOM.overlay.addEventListener('click', e => {
   if (e.target === DOM.overlay) DOM.overlay.classList.add('hidden');
@@ -719,6 +828,7 @@ document.addEventListener('keydown', e => {
 // INIT
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+  loadThemeMode();
   loadSettings();
   loadHistory();
   updateLineNums();
