@@ -13,7 +13,7 @@
 
 <br/>
 
-## ✦ What is Gitty?
+## What is Gitty?
 
 Gitty is a Chrome extension that turns two of the most tedious parts of shipping a project — **writing a README** and **explaining your code** — into a few clicks. Fill in your project details, pick an animation style, and get a polished, badge-ready README. Paste any snippet and get a line-by-line breakdown with syntax highlighting, structure analysis, and improvement tips.
 
@@ -24,21 +24,18 @@ Gitty is a Chrome extension that turns two of the most tedious parts of shipping
 <tr>
 <td width="33%" align="center">
 
-### 📝
 **README Generator**
 Badges, features, install steps — animated and export-ready
 
 </td>
 <td width="33%" align="center">
 
-### 🧠
 **Code Explainer**
 17+ languages, 6 syntax themes, 3 explanation depths
 
 </td>
 <td width="33%" align="center">
 
-### 🕐
 **History**
 Last 30 READMEs & explanations, restored in one click
 
@@ -49,10 +46,10 @@ Last 30 READMEs & explanations, restored in one click
 
 <br/>
 
-## ✨ Features
+## Features
 
 <details open>
-<summary><b>📝 README Generator</b></summary>
+<summary><b>README Generator</b></summary>
 <br/>
 
 - Complete, professional READMEs with badges, features, and install steps
@@ -64,7 +61,7 @@ Last 30 READMEs & explanations, restored in one click
 </details>
 
 <details>
-<summary><b>🧠 Code Explainer</b></summary>
+<summary><b>Code Explainer</b></summary>
 <br/>
 
 - Paste code in **17+ languages** — JS, TS, Python, Rust, Go, Java, C++, C#, Ruby, PHP, Swift, Kotlin, SQL, Bash, HTML, CSS, Solidity, and more
@@ -75,7 +72,7 @@ Last 30 READMEs & explanations, restored in one click
 </details>
 
 <details>
-<summary><b>🎨 Light & Dark Themes</b></summary>
+<summary><b>Light & Dark Themes</b></summary>
 <br/>
 
 - One-click toggle in the top bar, remembered across sessions
@@ -84,7 +81,7 @@ Last 30 READMEs & explanations, restored in one click
 </details>
 
 <details>
-<summary><b>🕐 History</b></summary>
+<summary><b>History</b></summary>
 <br/>
 
 - Auto-saves your last 30 READMEs and code explanations
@@ -94,7 +91,7 @@ Last 30 READMEs & explanations, restored in one click
 
 <br/>
 
-## 🚀 Installation
+## Installation
 
 ```bash
 1. Open Chrome and go to chrome://extensions/
@@ -105,7 +102,7 @@ Last 30 READMEs & explanations, restored in one click
 
 <br/>
 
-## 📖 Usage
+## Usage
 
 <table>
 <tr>
@@ -137,7 +134,7 @@ Last 30 READMEs & explanations, restored in one click
 
 <br/>
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Shortcut | Action |
 |---|---|
@@ -146,18 +143,18 @@ Last 30 READMEs & explanations, restored in one click
 
 <br/>
 
-## 💾 Saving Your Work
+## Saving Your Work
 
 | Action | Button | Result |
 |---|---|---|
-| Copy README | 📋 Copy | Ready to paste into your repo |
-| Save README | 💾 Save .md | Downloads as `project-name.md` |
-| Copy explanation | 📋 Copy | Full explanation text copied |
+| Copy README | Copy | Ready to paste into your repo |
+| Save README | Save .md | Downloads as `project-name.md` |
+| Copy explanation | Copy | Full explanation text copied |
 | Auto-copy | Settings toggle | Copies the README the moment it's generated |
 
 <br/>
 
-## 🛠️ Built With
+## Built With
 
 <div align="center">
 
@@ -172,10 +169,10 @@ Vanilla JavaScript, Manifest V3, zero build step, zero external dependencies. Se
 
 <br/>
 
+---
+
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:d175f5,100:0f0d1a&height=100&section=footer"/>
-
-Made with ◆ by **Gitty**
+Made by [Philemon Osei Kusi](https://github.com/Philemon12421)
 
 </div>
