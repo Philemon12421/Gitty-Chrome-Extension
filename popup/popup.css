@@ -491,19 +491,20 @@ textarea {
   font-family: var(--font);
   cursor: pointer;
   transition: all var(--dur) var(--spring);
-  box-shadow: 0 3px 14px rgba(124,92,252,0.4);
+  box-shadow: 0 4px 0 #5c3bc2, 0 5px 12px rgba(124,92,252,0.4);
   letter-spacing: 0.01em;
+  transform: translateY(0);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 22px rgba(124,92,252,0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #5c3bc2, 0 8px 16px rgba(124,92,252,0.55);
   background: linear-gradient(135deg, #b08fff 0%, #9b79ff 100%);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(124,92,252,0.4);
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #5c3bc2, 0 2px 4px rgba(124,92,252,0.4);
 }
 
 .btn-secondary {
@@ -699,7 +700,9 @@ textarea {
   font-size: 12px;
   line-height: 1.75;
   color: var(--t1);
-  background: var(--bg-raised);
+  background: rgba(22, 19, 43, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .md-render h1 { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 6px; letter-spacing: -0.01em; }
@@ -770,11 +773,14 @@ textarea {
 .sec-head:first-child { margin-top: 0; }
 
 .overview-card {
-  background: var(--bg-float);
+  background: rgba(30, 26, 56, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 10px 12px;
   margin-bottom: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .ov-text { font-size:12px; color:var(--t1); line-height:1.65; margin-bottom:8px; }

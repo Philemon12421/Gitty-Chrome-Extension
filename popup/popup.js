@@ -50,6 +50,8 @@ const DOM = {
   expOutput:       $('#explanation-output'),
   expBody:         $('#explanation-body'),
   btnCopyExp:      $('#btn-copy-explanation'),
+  btnCopyExpMd:    $('#btn-copy-explanation-md'),
+  btnSaveExpMd:    $('#btn-save-explanation-md'),
 
   // History
   histReadme:      $('#history-readme'),
@@ -238,11 +240,17 @@ function generateReadme() {
   const featMd  = feats.length ? feats.map(f=>`- ${f}`).join('\n') : `- ⚡ Blazing fast\n- 🔒 Secure by design\n- 🎨 Beautiful UI`;
   const instMd  = steps.length ? '```bash\n'+steps.join('\n')+'\n```' : `\`\`\`bash\ngit clone https://github.com/${github}/${name}.git\ncd ${name}\nnpm install\nnpm run dev\n\`\`\``;
 
-  const readme = `# ${name}
+  const readme = `<div align="center">
 
-> ${tagline}
+<img src="https://via.placeholder.com/150" alt="Logo" width="150" height="150">
+
+# ${name}
+
+> **${tagline}**
 
 ${gBadge} ${lBadge} ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=${bs}) ![Stars](https://img.shields.io/github/stars/${github}/${name}?style=${bs})
+
+</div>
 
 ---
 
@@ -252,9 +260,46 @@ ${desc}
 
 ---
 
+## 💻 Tech Stack
+
+<details open>
+<summary><b>Languages & Frameworks</b></summary>
+
+<br/>
+
+<div align="center">
+
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/-React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+
+</div>
+
+</details>
+
+---
+
 ## ✨ Features
 
 ${featMd}
+
+---
+
+## ⚙️ Configuration & Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file:
+
+\`API_KEY\` - Your primary API key
+\`PORT\` - Local port to run the server on (default 3000)
+
+---
+
+## 🛠 Prerequisites
+
+Make sure you have the following installed:
+- Node.js (v14 or higher)
+- npm or yarn
 
 ---
 
@@ -272,6 +317,14 @@ ${instMd}
 
 ---
 
+## 🗺 Roadmap
+
+- [x] Initial release
+- [ ] Add more features
+- [ ] Improve documentation
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the project
@@ -285,6 +338,13 @@ ${instMd}
 ## 📄 License
 
 ${license === 'custom' ? 'Custom license — see [LICENSE](./LICENSE) for details.' : `Licensed under the **${license} License**. See [LICENSE](./LICENSE) for details.`}
+
+---
+
+## 👏 Acknowledgements
+
+- [Choose an Open Source License](https://choosealicense.com)
+- [Img Shields](https://shields.io)
 
 ---
 
@@ -357,7 +417,7 @@ function buildExplanation(code, lang, lname, depth) {
   const adv = depth === 'advanced';
   const parts = [];
 
-  parts.push(`<div class="sec-head">📋 Overview</div>`);
+  parts.push(`<div class="sec-head"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg> Overview</div>`);
   parts.push(`
     <div class="overview-card">
       <div class="ov-text">${A.overview}</div>
@@ -370,11 +430,11 @@ function buildExplanation(code, lang, lname, depth) {
   `);
 
   if (A.structure) {
-    parts.push(`<div class="sec-head">🏗️ Structure</div>`);
+    parts.push(`<div class="sec-head"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg> Structure</div>`);
     parts.push(`<div class="overview-card"><div class="ov-text">${A.structure}</div></div>`);
   }
 
-  parts.push(`<div class="sec-head">🔍 Line Breakdown</div>`);
+  parts.push(`<div class="sec-head"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Line Breakdown</div>`);
 
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i];
@@ -390,13 +450,13 @@ function buildExplanation(code, lang, lname, depth) {
   }
 
   if (A.concepts.length) {
-    parts.push(`<div class="sec-head">💡 Key Concepts</div>`);
+    parts.push(`<div class="sec-head"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Key Concepts</div>`);
     A.concepts.forEach(c => parts.push(`<div class="concept-card"><div class="c-name">${c.name}</div><div class="c-desc">${c.desc}</div></div>`));
   }
 
   if (adv && A.suggestions.length) {
-    parts.push(`<div class="sec-head">🔧 Suggestions</div>`);
-    A.suggestions.forEach(s => parts.push(`<div class="suggestion"><span>⚠</span><span>${s}</span></div>`));
+    parts.push(`<div class="sec-head"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg> Suggestions</div>`);
+    A.suggestions.forEach(s => parts.push(`<div class="suggestion"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span><span>${s}</span></div>`));
   }
 
   return parts.join('');
@@ -726,8 +786,64 @@ DOM.btnClearCode.addEventListener('click', () => {
   updateLineNums();
 });
 
+// Helper to get MD text
+function getExplanationMd() {
+  let mdText = "## Code Explanation\n\n";
+  const overview = DOM.expBody.querySelector('.ov-text');
+  if (overview) mdText += `### Overview\n\n${overview.innerText}\n\n`;
+
+  const lines = DOM.expBody.querySelectorAll('.code-line');
+  if (lines.length > 0) {
+    mdText += `### Line Breakdown\n\n`;
+    lines.forEach(line => {
+      const num = line.querySelector('.cl-num')?.innerText || '';
+      const code = line.querySelector('.cl-code')?.innerText || '';
+      const exp = line.querySelector('.cl-exp')?.innerText || '';
+      if (exp && exp.trim() !== '') {
+        mdText += `- **Line ${num}**: \`${code.trim()}\`\n  - ${exp.trim()}\n`;
+      }
+    });
+    mdText += "\n";
+  }
+
+  const concepts = DOM.expBody.querySelectorAll('.concept-card');
+  if (concepts.length > 0) {
+    mdText += `### Key Concepts\n\n`;
+    concepts.forEach(c => {
+      const name = c.querySelector('.c-name')?.innerText || '';
+      const desc = c.querySelector('.c-desc')?.innerText || '';
+      mdText += `- **${name}**: ${desc}\n`;
+    });
+    mdText += "\n";
+  }
+
+  const suggestions = DOM.expBody.querySelectorAll('.suggestion');
+  if (suggestions.length > 0) {
+    mdText += `### Suggestions\n\n`;
+    suggestions.forEach(s => {
+      mdText += `- ${s.innerText.replace('⚠', '').trim()}\n`;
+    });
+    mdText += "\n";
+  }
+  return mdText;
+}
+
 // Copy explanation
 DOM.btnCopyExp.addEventListener('click', () => copyText(DOM.expBody.innerText));
+if (DOM.btnCopyExpMd) {
+  DOM.btnCopyExpMd.addEventListener('click', () => {
+    let mdText = getExplanationMd();
+    copyText(mdText);
+    showToast('Markdown copied!', 'ok');
+  });
+}
+if (DOM.btnSaveExpMd) {
+  DOM.btnSaveExpMd.addEventListener('click', () => {
+    let mdText = getExplanationMd();
+    saveFile(mdText, 'code-explanation', 'md');
+    showToast('Saved!', 'ok');
+  });
+}
 
 // Line numbers
 DOM.codeInput.addEventListener('input', updateLineNums);
