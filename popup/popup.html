@@ -17,10 +17,16 @@
       <img src="../icons/icon128.png" class="brand-icon" alt="Gitty"/>
       <div class="brand-text">
         <span class="brand-name">gitty</span>
-        <span class="brand-tag">✦ Explain code on GitHub</span>
+        <span class="brand-tag">✦ Security Shield &amp; Dev Studio</span>
       </div>
     </div>
     <div class="topbar-actions">
+      <!-- Live Shield Status Pill -->
+      <button id="btn-topbar-shield" class="topbar-shield-pill" title="Phishing Defense Status — Click to view Shield">
+        <span class="shield-dot"></span>
+        <span class="shield-pill-text">Shield Active</span>
+      </button>
+
       <button id="btn-theme-toggle" class="topbar-theme" title="Toggle light / dark theme">
         <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
@@ -34,15 +40,19 @@
   <!-- NAV TABS -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="readme">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
       README
     </button>
-    <button class="tab-btn" data-tab="explainer">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-      Explain Code
+    <button class="tab-btn" data-tab="security">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      Security Test
+    </button>
+    <button class="tab-btn" data-tab="shield">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      Phishing Shield
     </button>
     <button class="tab-btn" data-tab="history">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
       History
     </button>
   </nav>
@@ -55,7 +65,7 @@
 
       <div class="import-card">
         <div class="field">
-          <label>Import from GitHub <span class="hint">— optional, auto-fills the fields below</span></label>
+          <label>Import from GitHub <span class="hint">— auto-detects from active tab or enter URL</span></label>
           <div class="import-row">
             <input type="text" id="github-import-url" placeholder="https://github.com/owner/repo"/>
             <button id="btn-github-import" class="btn-secondary" type="button">
@@ -64,6 +74,17 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <div class="field">
+        <label>Template Style <span class="hint">— choose presentation structure</span></label>
+        <select id="project-template">
+          <option value="showcase" selected>🌟 Modern Showcase (Rich Badges, Architecture &amp; Roadmap)</option>
+          <option value="minimal">⚡ Minimalist Developer (Concise, Code-First)</option>
+          <option value="enterprise">🏢 Enterprise / Production (Compliance, Security &amp; CI/CD)</option>
+          <option value="cli">💻 CLI Tool &amp; Package (Commands, Benchmarks, Installation)</option>
+          <option value="ai">🤖 AI / Data Science (Models, Datasets, Training, Citations)</option>
+        </select>
       </div>
 
       <div class="form-row two">
@@ -82,10 +103,29 @@
         <textarea id="project-desc" rows="3" placeholder="What does your project do? Who is it for?"></textarea>
       </div>
 
+      <div class="field">
+        <label>Tech Stack Badges <span class="hint">— click to toggle badges</span></label>
+        <div id="tech-stack-chips" class="tech-chips-grid">
+          <button type="button" class="tech-chip active" data-tech="TypeScript">TypeScript</button>
+          <button type="button" class="tech-chip active" data-tech="React">React</button>
+          <button type="button" class="tech-chip active" data-tech="Node.js">Node.js</button>
+          <button type="button" class="tech-chip" data-tech="Next.js">Next.js</button>
+          <button type="button" class="tech-chip" data-tech="Python">Python</button>
+          <button type="button" class="tech-chip" data-tech="FastAPI">FastAPI</button>
+          <button type="button" class="tech-chip" data-tech="Docker">Docker</button>
+          <button type="button" class="tech-chip" data-tech="TailwindCSS">TailwindCSS</button>
+          <button type="button" class="tech-chip" data-tech="PostgreSQL">PostgreSQL</button>
+          <button type="button" class="tech-chip" data-tech="MongoDB">MongoDB</button>
+          <button type="button" class="tech-chip" data-tech="Redis">Redis</button>
+          <button type="button" class="tech-chip" data-tech="AWS">AWS</button>
+          <button type="button" class="tech-chip" data-tech="GraphQL">GraphQL</button>
+        </div>
+      </div>
+
       <div class="form-row three">
         <div class="field">
           <label>Language</label>
-          <input type="text" id="project-lang" placeholder="Python, TS…"/>
+          <input type="text" id="project-lang" placeholder="TypeScript, Python…"/>
         </div>
         <div class="field">
           <label>License</label>
@@ -99,10 +139,10 @@
           </select>
         </div>
         <div class="field">
-          <label>Badges</label>
+          <label>Badge Style</label>
           <select id="project-badge-style">
             <option value="flat">Flat</option>
-            <option value="flat-square">Flat Square</option>
+            <option value="flat-square" selected>Flat Square</option>
             <option value="for-the-badge">For the Badge</option>
             <option value="plastic">Plastic</option>
           </select>
@@ -111,17 +151,26 @@
 
       <div class="field">
         <label>Features <span class="hint">— one per line</span></label>
-        <textarea id="project-features" rows="4" placeholder="🚀 Blazing fast&#10;🔒 Secure by design&#10;🎨 Beautiful UI&#10;⚡ Zero config"></textarea>
+        <textarea id="project-features" rows="3" placeholder="🚀 Blazing fast performance&#10;🔒 Security by design&#10;🎨 Beautiful UI with dark mode&#10;⚡ Zero config setup"></textarea>
       </div>
 
       <div class="field">
         <label>Install Steps <span class="hint">— one per line</span></label>
-        <textarea id="project-install" rows="3" placeholder="git clone https://github.com/user/repo&#10;cd repo && npm install&#10;npm run dev"></textarea>
+        <textarea id="project-install" rows="3" placeholder="git clone https://github.com/user/repo&#10;cd repo &amp;&amp; npm install&#10;npm run dev"></textarea>
       </div>
 
-      <div class="field">
-        <label>GitHub Username <span class="hint">— optional</span></label>
-        <input type="text" id="project-github" placeholder="your-username"/>
+      <div class="form-row two">
+        <div class="field">
+          <label>GitHub Username <span class="hint">— optional</span></label>
+          <input type="text" id="project-github" placeholder="your-username"/>
+        </div>
+        <div class="field">
+          <label>Include Table of Contents</label>
+          <select id="project-include-toc">
+            <option value="yes" selected>Yes (Interactive TOC)</option>
+            <option value="no">No</option>
+          </select>
+        </div>
       </div>
 
       <div class="field">
@@ -136,112 +185,230 @@
 
       <div class="actions">
         <button id="btn-generate-readme" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Generate README
         </button>
         <button id="btn-copy-readme" class="btn-secondary" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           Copy
         </button>
         <button id="btn-save-readme" class="btn-secondary" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           Save .md
+        </button>
+        <button id="btn-export-html-readme" class="btn-secondary" disabled title="Export as rendered HTML">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          .html
         </button>
       </div>
 
       <div id="readme-preview-wrap" class="output-box hidden">
         <div class="output-box-header">
-          <span>Preview</span>
-          <button id="btn-toggle-anim" class="icon-btn" title="Pause animation">
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 1.5L9.5 5.5L2 9.5V1.5Z" fill="currentColor"/></svg>
-          </button>
+          <span>Live README Preview</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button id="btn-toggle-anim" class="icon-btn" title="Pause animation">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 1.5L9.5 5.5L2 9.5V1.5Z" fill="currentColor"/></svg>
+            </button>
+          </div>
         </div>
         <div id="readme-preview" class="output-box-body md-render"></div>
       </div>
     </section>
 
-    <!-- EXPLAINER TAB -->
-    <section id="tab-explainer" class="pane">
+    <!-- SECURITY TEST TAB -->
+    <section id="tab-security" class="pane">
 
-      <div class="form-row three">
-        <div class="field">
-          <label>Language</label>
-          <select id="code-language">
-            <option value="javascript">JavaScript</option>
-            <option value="typescript">TypeScript</option>
-            <option value="python">Python</option>
-            <option value="rust">Rust</option>
-            <option value="go">Go</option>
-            <option value="java">Java</option>
-            <option value="cpp">C++</option>
-            <option value="csharp">C#</option>
-            <option value="ruby">Ruby</option>
-            <option value="php">PHP</option>
-            <option value="swift">Swift</option>
-            <option value="kotlin">Kotlin</option>
-            <option value="sql">SQL</option>
-            <option value="bash">Bash</option>
-            <option value="html">HTML</option>
-            <option value="css">CSS</option>
-            <option value="solidity">Solidity</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Depth</label>
-          <select id="explain-depth">
-            <option value="simple">Simple</option>
-            <option value="detailed" selected>Detailed</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Theme</label>
-          <select id="syntax-theme">
-            <option value="dracula">Dracula</option>
-            <option value="tokyo-night">Tokyo Night</option>
-            <option value="monokai">Monokai</option>
-            <option value="nord">Nord</option>
-            <option value="github-dark">GitHub Dark</option>
-            <option value="one-dark">One Dark</option>
-          </select>
+      <!-- MODE TOGGLE -->
+      <div class="sec-mode-bar">
+        <div class="sec-mode-toggle">
+          <button id="btn-mode-code" class="mode-btn active" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            Code / Snippet
+          </button>
+          <button id="btn-mode-repo" class="mode-btn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            Whole Repo / Project
+          </button>
         </div>
       </div>
 
-      <div class="field">
-        <label>Paste Your Code</label>
-        <div class="code-wrap">
-          <div id="line-nums" class="line-nums" aria-hidden="true">1</div>
-          <textarea id="code-input" class="code-area" spellcheck="false" placeholder="// paste code here…&#10;function hello() {&#10;  return 'world';&#10;}"></textarea>
+      <!-- VIEW 1: CODE / SNIPPET -->
+      <div id="security-code-view">
+        <div class="form-row three">
+          <div class="field">
+            <label>Language</label>
+            <select id="sec-language">
+              <option value="auto">Auto-detect</option>
+              <option value="javascript">JavaScript</option>
+              <option value="typescript">TypeScript</option>
+              <option value="python">Python</option>
+              <option value="rust">Rust</option>
+              <option value="go">Go</option>
+              <option value="java">Java</option>
+              <option value="cpp">C / C++</option>
+              <option value="csharp">C#</option>
+              <option value="php">PHP</option>
+              <option value="ruby">Ruby</option>
+              <option value="solidity">Solidity</option>
+              <option value="sql">SQL</option>
+              <option value="bash">Bash / Shell</option>
+              <option value="html">HTML</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Audit Scope</label>
+            <select id="sec-depth">
+              <option value="comprehensive" selected>Full Security Audit</option>
+              <option value="strict">Strict (OWASP Top 10 &amp; Entropy)</option>
+              <option value="secrets">Secrets &amp; Injections Only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Test Sample</label>
+            <select id="sec-sample-select">
+              <option value="">Load Sample…</option>
+              <option value="sqli_xss">SQLi + XSS + Secrets</option>
+              <option value="python_rce">Python: Command Inj + Pickle</option>
+              <option value="cloud_keys">AWS Key + Insecure TLS</option>
+              <option value="solidity_reentrancy">Solidity: Reentrancy &amp; Origin</option>
+              <option value="clean_code">Clean Secure Code</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Paste Code or File <span class="hint">— checks whole code for vulnerabilities</span></label>
+          <div class="code-wrap">
+            <div id="sec-line-nums" class="line-nums" aria-hidden="true">1</div>
+            <textarea id="sec-code-input" class="code-area" spellcheck="false" placeholder="// Paste code or project file here to audit for security risks...&#10;const apiKey = 'AKIAIOSFODNN7EXAMPLE';&#10;db.query('SELECT * FROM users WHERE id = ' + req.query.id);"></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btn-run-security-test" class="btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+            Run Security Test
+          </button>
+          <button id="btn-clear-sec-code" class="btn-ghost">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            Clear
+          </button>
         </div>
       </div>
 
-      <div class="actions">
-        <button id="btn-explain-code" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          Explain Code
-        </button>
-        <button id="btn-clear-code" class="btn-ghost">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          Clear
-        </button>
+      <!-- VIEW 2: WHOLE PROJECT / REPO -->
+      <div id="security-repo-view" class="hidden">
+        <div class="repo-audit-card">
+          <div class="field">
+            <label>GitHub Project Repository</label>
+            <div class="import-row">
+              <input type="text" id="sec-repo-url" placeholder="https://github.com/owner/repo or owner/repo"/>
+              <button id="btn-sec-repo-scan" class="btn-primary" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Audit Repo
+              </button>
+            </div>
+          </div>
+          <p class="repo-audit-hint">Audits your whole repository tree via GitHub API for committed secrets (.env, keys, certs), missing security policies (SECURITY.md), dangerous GitHub Actions workflows, insecure permissions, and dependency configurations.</p>
+        </div>
       </div>
 
-      <div id="explanation-output" class="output-box hidden">
+      <!-- SECURITY REPORT OUTPUT -->
+      <div id="security-output" class="output-box hidden">
         <div class="output-box-header" style="display: flex; justify-content: space-between; align-items: center;">
-          <span>Explanation</span>
-          <div style="display: flex; gap: 8px;">
-            <button id="btn-copy-explanation" class="icon-btn" title="Copy Text">
+          <span style="display:flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Security Audit Report
+          </span>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-copy-sec-summary" class="icon-btn" title="Copy Summary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </button>
-            <button id="btn-copy-explanation-md" class="icon-btn" title="Copy as Markdown">
+            <button id="btn-copy-sec-md" class="icon-btn" title="Copy as Markdown">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
             </button>
-            <button id="btn-save-explanation-md" class="icon-btn" title="Download Markdown">
+            <button id="btn-copy-sec-json" class="icon-btn" title="Export as JSON">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            </button>
+            <button id="btn-save-sec-md" class="icon-btn" title="Download Security Report .md">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             </button>
           </div>
         </div>
-        <div id="explanation-body" class="output-box-body exp-render"></div>
+        <div id="security-body" class="output-box-body sec-render"></div>
+      </div>
+    </section>
+
+    <!-- SHIELD TAB (PHISHING DEFENSE & SITE INSPECTOR) -->
+    <section id="tab-shield" class="pane">
+      <div class="shield-hero">
+        <div class="shield-hero-status">
+          <div class="shield-radar">
+            <span class="radar-ping"></span>
+            <span class="shield-big-icon">🛡️</span>
+          </div>
+          <div class="shield-hero-text">
+            <h3 id="shield-status-heading">Always-On Shield: ACTIVE</h3>
+            <p>Guarding all visited sites against credential phishing, homograph lookalikes &amp; malicious forms.</p>
+          </div>
+        </div>
+        <div class="shield-hero-toggle">
+          <label class="toggle" title="Toggle Real-Time Phishing Protection">
+            <input type="checkbox" id="shield-toggle-realtime" checked />
+            <span class="toggle-track"><span class="toggle-knob"></span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="shield-stats-grid">
+        <div class="sstat-card">
+          <span class="sstat-num" id="sstat-blocked-count">0</span>
+          <span class="sstat-label">Threats Blocked</span>
+        </div>
+        <div class="sstat-card">
+          <span class="sstat-num">8</span>
+          <span class="sstat-label">Active Heuristics</span>
+        </div>
+        <div class="sstat-card">
+          <span class="sstat-num" style="color:var(--green)">100%</span>
+          <span class="sstat-label">Engine Health</span>
+        </div>
+      </div>
+
+      <!-- Current Site Safety Inspector -->
+      <div class="inspector-card">
+        <div class="inspector-head">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <strong>Active Site Inspector</strong>
+          </div>
+          <button id="btn-recheck-site" class="icon-btn" title="Re-scan active tab">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          </button>
+        </div>
+        <div class="inspector-body">
+          <div class="site-info-row">
+            <span class="site-domain" id="site-inspect-domain">Checking current tab…</span>
+            <span class="site-badge badge-safe" id="site-inspect-badge">Verified Safe</span>
+          </div>
+          <div class="site-score-bar">
+            <div class="site-score-fill" id="site-score-fill" style="width: 100%;"></div>
+          </div>
+          <div class="site-heuristics" id="site-heuristics-list">
+            <div class="heur-item"><span class="h-icon">✅</span> Homograph &amp; Punycode lookalike domain check passed</div>
+            <div class="heur-item"><span class="h-icon">✅</span> SSL / TLS certificate verified</div>
+            <div class="heur-item"><span class="h-icon">✅</span> No credential harvesting forms detected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Threat Defense Log -->
+      <div class="threat-log-section">
+        <div class="threat-log-head">
+          <span>Recent Threat Defense Log</span>
+          <button id="btn-clear-threats" class="btn-ghost" style="padding:2px 8px;font-size:10.5px;">Clear Log</button>
+        </div>
+        <div id="threat-log-list" class="threat-log-list"></div>
       </div>
     </section>
 
@@ -250,20 +417,20 @@
       <div class="hist-controls">
         <div class="hist-seg">
           <button class="hist-btn active" data-hist="readme">READMEs</button>
-          <button class="hist-btn" data-hist="code">Explanations</button>
+          <button class="hist-btn" data-hist="security">Security Audits</button>
         </div>
         <button id="btn-clear-history" class="btn-danger">Clear All</button>
       </div>
 
       <div id="history-readme" class="hist-list active"></div>
-      <div id="history-code" class="hist-list"></div>
+      <div id="history-security" class="hist-list"></div>
 
       <div id="history-empty" class="empty-state">
         <div class="empty-cat">
           <img src="../icons/icon128.png" alt="Gitty" style="width:56px;height:56px;object-fit:contain;opacity:0.35"/>
         </div>
         <p>Nothing here yet.</p>
-        <span>Generate a README or explain some code!</span>
+        <span>Generate a README, audit code, or browse safely with Phishing Shield!</span>
       </div>
     </section>
 
@@ -307,6 +474,23 @@
               <option value="slide">Slide</option>
               <option value="glow">Glow</option>
             </select>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h4>Phishing &amp; Security</h4>
+          <div class="field setting-row">
+            <label>Always-On Phishing Attack Protection</label>
+            <label class="toggle">
+              <input type="checkbox" id="settings-shield-toggle" checked />
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
+            </label>
+          </div>
+          <div class="field setting-row">
+            <label>Desktop Notification on Threat</label>
+            <label class="toggle">
+              <input type="checkbox" id="settings-notif-toggle" checked />
+              <span class="toggle-track"><span class="toggle-knob"></span></span>
+            </label>
           </div>
         </div>
         <div class="settings-group">

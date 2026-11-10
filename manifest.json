@@ -1,10 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Gitty — README & Code Explainer",
-  "version": "2.0.0",
-  "description": "Generate stunning README files and get line-by-line code explanations. The ultimate dev companion for GitHub.",
-  "permissions": ["storage", "clipboardWrite", "activeTab"],
-  "host_permissions": ["https://api.github.com/*"],
+  "name": "Gitty — AI Security Shield, Code Auditor & README Pro",
+  "version": "2.2.0",
+  "description": "Real-time phishing attack detector for all sites, static code security auditor, whole repo scanner, and premium animated README generator.",
+  "permissions": [
+    "storage",
+    "clipboardWrite",
+    "activeTab",
+    "notifications",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "http://*/*",
+    "https://*/*"
+  ],
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -23,6 +33,14 @@
     "service_worker": "background.js",
     "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content/phishing-detector.js"],
+      "css": ["content/phishing-banner.css"],
+      "run_at": "document_end"
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }

@@ -1,0 +1,7 @@
+/* Gitty Phishing Shield Banner Styles */
+#gitty-shield-banner-root {
+  all: initial;
+  display: block;
+  z-index: 2147483647;
+}
+
